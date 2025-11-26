@@ -686,7 +686,7 @@ function KapaoUI:CreateWindow(options)
     })
     mainWindow.Name = "KapaoWindow"
     mainWindow.ClipsDescendants = true
-    createCorner(mainWindow, 0)
+    createCorner(mainWindow, 12)
     
     -- ═══════════════════════════════════════════════════════════════════════════
     -- SUBTLE GRADIENT BACKGROUND
