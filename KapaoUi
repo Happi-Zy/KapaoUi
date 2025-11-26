@@ -1282,18 +1282,30 @@ function KapaoUI:CreateWindow(options)
             button.TextColor3 = Theme.Accent
             button.AutoButtonColor = false
             button.Parent = buttonFrame
-            createCorner(button, 6)
+            createCorner(button, 8)
             
             local buttonStroke = createStroke(button, Theme.Accent, 1)
             
+            -- Add glow effect on hover
+            local buttonGlow = Instance.new("UIStroke")
+            buttonGlow.Color = Theme.Accent
+            buttonGlow.Thickness = 0
+            buttonGlow.Transparency = 0.5
+            buttonGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            buttonGlow.Parent = button
+            
             button.MouseEnter:Connect(function()
-                createTween(button, {BackgroundColor3 = Theme.ElementBackgroundHover}, 0.2)
-                buttonStroke.Thickness = 2
+                createTween(button, {BackgroundColor3 = Theme.Accent}, 0.2)
+                createTween(button, {TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.2)
+                createTween(buttonStroke, {Thickness = 2}, 0.2)
+                createTween(buttonGlow, {Thickness = 4}, 0.2)
             end)
             
             button.MouseLeave:Connect(function()
                 createTween(button, {BackgroundColor3 = Theme.ElementBackground}, 0.2)
-                buttonStroke.Thickness = 1
+                createTween(button, {TextColor3 = Theme.Accent}, 0.2)
+                createTween(buttonStroke, {Thickness = 1}, 0.2)
+                createTween(buttonGlow, {Thickness = 0}, 0.2)
             end)
             
             button.MouseButton1Click:Connect(function()
@@ -1350,22 +1362,38 @@ function KapaoUI:CreateWindow(options)
             -- Switch background
             local switchBg = createFrame({
                 BackgroundColor = Theme.ElementBackground,
-                Size = UDim2.new(0, 48, 0, 24),
-                Position = UDim2.new(1, -58, 0, 6),
+                Size = UDim2.new(0, 50, 0, 26),
+                Position = UDim2.new(1, -60, 0, 5),
                 Parent = toggleFrame,
             })
-            createCorner(switchBg, 12)
+            createCorner(switchBg, 13)
             
             local switchStroke = createStroke(switchBg, Theme.ElementBorder, 1)
+            
+            -- Add glow effect
+            local switchGlow = Instance.new("UIStroke")
+            switchGlow.Color = Theme.Accent
+            switchGlow.Thickness = 0
+            switchGlow.Transparency = 0.3
+            switchGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            switchGlow.Parent = switchBg
             
             -- Switch knob
             local switchKnob = createFrame({
                 BackgroundColor = Color3.fromRGB(140, 150, 170),
-                Size = UDim2.new(0, 18, 0, 18),
+                Size = UDim2.new(0, 20, 0, 20),
                 Position = UDim2.new(0, 3, 0, 3),
                 Parent = switchBg,
             })
-            createCorner(switchKnob, 9)
+            createCorner(switchKnob, 10)
+            
+            -- Knob shadow
+            local knobShadow = Instance.new("UIStroke")
+            knobShadow.Color = Color3.fromRGB(0, 0, 0)
+            knobShadow.Thickness = 2
+            knobShadow.Transparency = 0.7
+            knobShadow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            knobShadow.Parent = switchKnob
             
             local state = default
             
@@ -1374,17 +1402,19 @@ function KapaoUI:CreateWindow(options)
                 if state then
                     createTween(switchBg, {BackgroundColor3 = Theme.Accent}, 0.25)
                     createTween(switchKnob, {
-                        Position = UDim2.new(1, -21, 0, 3),
+                        Position = UDim2.new(1, -23, 0, 3),
                         BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                    }, 0.25)
-                    switchStroke.Color = Theme.Accent
+                    }, 0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+                    createTween(switchStroke, {Color = Theme.Accent}, 0.25)
+                    createTween(switchGlow, {Thickness = 3}, 0.25)
                 else
                     createTween(switchBg, {BackgroundColor3 = Theme.ElementBackground}, 0.25)
                     createTween(switchKnob, {
                         Position = UDim2.new(0, 3, 0, 3),
                         BackgroundColor3 = Color3.fromRGB(140, 150, 170)
-                    }, 0.25)
-                    switchStroke.Color = Theme.ElementBorder
+                    }, 0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+                    createTween(switchStroke, {Color = Theme.ElementBorder}, 0.25)
+                    createTween(switchGlow, {Thickness = 0}, 0.25)
                 end
             end
             
@@ -1475,11 +1505,11 @@ function KapaoUI:CreateWindow(options)
             -- Slider background
             local sliderBg = createFrame({
                 BackgroundColor = Theme.ElementBackground,
-                Size = UDim2.new(1, -10, 0, 8),
+                Size = UDim2.new(1, -10, 0, 10),
                 Position = UDim2.new(0, 5, 0, 28),
                 Parent = sliderFrame,
             })
-            createCorner(sliderBg, 4)
+            createCorner(sliderBg, 5)
             createStroke(sliderBg, Theme.ElementBorder, 1)
             
             -- Slider fill
@@ -1488,17 +1518,33 @@ function KapaoUI:CreateWindow(options)
                 Size = UDim2.new(0, 0, 1, 0),
                 Parent = sliderBg,
             })
-            createCorner(sliderFill, 4)
+            createCorner(sliderFill, 5)
+            
+            -- Fill glow
+            local fillGlow = Instance.new("UIStroke")
+            fillGlow.Color = Theme.Accent
+            fillGlow.Thickness = 2
+            fillGlow.Transparency = 0.5
+            fillGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            fillGlow.Parent = sliderFill
             
             -- Slider knob
             local sliderKnob = createFrame({
                 BackgroundColor = Color3.fromRGB(255, 255, 255),
-                Size = UDim2.new(0, 16, 0, 16),
-                Position = UDim2.new(0, 0, 0.5, -8),
+                Size = UDim2.new(0, 18, 0, 18),
+                Position = UDim2.new(0, 0, 0.5, -9),
                 Parent = sliderBg,
             })
-            createCorner(sliderKnob, 8)
+            createCorner(sliderKnob, 9)
             createStroke(sliderKnob, Theme.Accent, 2)
+            
+            -- Knob glow
+            local knobGlow = Instance.new("UIStroke")
+            knobGlow.Color = Theme.Accent
+            knobGlow.Thickness = 0
+            knobGlow.Transparency = 0.3
+            knobGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            knobGlow.Parent = sliderKnob
             
             local value = default
             
@@ -1525,6 +1571,7 @@ function KapaoUI:CreateWindow(options)
             sliderBg.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
                     dragging = true
+                    createTween(knobGlow, {Thickness = 4}, 0.2)
                     local mousePos = UserInputService:GetMouseLocation()
                     local percent = math.clamp((mousePos.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
                     setValue(min + (max - min) * percent)
@@ -1534,6 +1581,17 @@ function KapaoUI:CreateWindow(options)
             sliderBg.InputEnded:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
                     dragging = false
+                    createTween(knobGlow, {Thickness = 0}, 0.2)
+                end
+            end)
+            
+            sliderBg.MouseEnter:Connect(function()
+                createTween(knobGlow, {Thickness = 2}, 0.2)
+            end)
+            
+            sliderBg.MouseLeave:Connect(function()
+                if not dragging then
+                    createTween(knobGlow, {Thickness = 0}, 0.2)
                 end
             end)
             
