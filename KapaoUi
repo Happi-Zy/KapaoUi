@@ -898,14 +898,14 @@ function KapaoUI:CreateWindow(options)
     fpsLabel.Size = UDim2.new(0, 80, 1, 0)
     fpsLabel.Position = UDim2.new(0, 160, 0, 0)
     fpsLabel.TextColor3 = Theme.Success
-    fpsLabel.Font = Enum.Font.GothamMono
+    fpsLabel.Font = Enum.Font.Code
     
     -- Ping label
     local pingLabel = createTextLabel(statusBar, "Ping: --ms", 10)
     pingLabel.Size = UDim2.new(0, 100, 1, 0)
     pingLabel.Position = UDim2.new(0, 250, 0, 0)
     pingLabel.TextColor3 = Theme.Accent
-    pingLabel.Font = Enum.Font.GothamMono
+    pingLabel.Font = Enum.Font.Code
     
     -- FPS/Ping counter (updates every second)
     local lastUpdate = tick()
