@@ -67,31 +67,31 @@ local canSaveConfig = typeof(writefile) == "function"
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local Theme = {
-    -- Background Colors (Darker for better contrast)
-    Background = Color3.fromRGB(5, 8, 15),
-    WindowBackground = Color3.fromRGB(8, 12, 20),
-    TopBar = Color3.fromRGB(10, 15, 25),
+    -- Background Colors
+    Background = Color3.fromRGB(8, 12, 20),
+    WindowBackground = Color3.fromRGB(10, 15, 25),
+    TopBar = Color3.fromRGB(12, 18, 30),
     
-    -- Accent Colors (BRIGHTER Cyan - Neon Glow)
-    Accent = Color3.fromRGB(0, 255, 255),          -- Pure Cyan (สดใส)
-    AccentGlow = Color3.fromRGB(0, 220, 255),      -- Bright Cyan
-    AccentDark = Color3.fromRGB(0, 180, 220),      -- Medium Cyan
+    -- Accent Colors (Cyan Glow)
+    Accent = Color3.fromRGB(0, 200, 255),
+    AccentGlow = Color3.fromRGB(0, 150, 220),
+    AccentDark = Color3.fromRGB(0, 160, 200),
     
-    -- Element Colors (Better contrast)
-    ElementBackground = Color3.fromRGB(18, 25, 40),
-    ElementBackgroundHover = Color3.fromRGB(25, 35, 55),
-    ElementBorder = Color3.fromRGB(0, 220, 255),   -- Brighter border
+    -- Element Colors
+    ElementBackground = Color3.fromRGB(15, 22, 35),
+    ElementBackgroundHover = Color3.fromRGB(20, 30, 48),
+    ElementBorder = Color3.fromRGB(0, 180, 240),
     
-    -- Text Colors (Higher contrast)
-    TextPrimary = Color3.fromRGB(240, 250, 255),   -- Almost white
-    TextSecondary = Color3.fromRGB(180, 210, 240),
-    TextAccent = Color3.fromRGB(0, 255, 255),      -- Pure cyan
-    TextDark = Color3.fromRGB(120, 140, 170),
+    -- Text Colors
+    TextPrimary = Color3.fromRGB(230, 245, 255),
+    TextSecondary = Color3.fromRGB(160, 190, 220),
+    TextAccent = Color3.fromRGB(0, 200, 255),
+    TextDark = Color3.fromRGB(100, 120, 150),
     
-    -- Status Colors (More vibrant)
-    Success = Color3.fromRGB(0, 255, 150),
-    Warning = Color3.fromRGB(255, 220, 0),
-    Error = Color3.fromRGB(255, 80, 100),
+    -- Status Colors
+    Success = Color3.fromRGB(0, 255, 100),
+    Warning = Color3.fromRGB(255, 200, 0),
+    Error = Color3.fromRGB(255, 60, 80),
 }
 
 -- ═══════════════════════════════════════════════════════════════════════════════
@@ -324,95 +324,45 @@ end
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- CORNER DECORATIONS (Manhwa Style L-shapes)
 -- ═══════════════════════════════════════════════════════════════════════════════
+
+--[[
+    Create corner decorations (L-shaped lines at all 4 corners)
+    
+    Parameters:
+        parent: Parent instance to add decorations to
+]]
 local function createCornerDecorations(parent)
-    local corners = {
-        {pos = UDim2.new(0, -2, 0, -2), rotation = 0, name = "TopLeft"},
-        {pos = UDim2.new(1, 2, 0, -2), rotation = 90, name = "TopRight"},
-        {pos = UDim2.new(0, -2, 1, 2), rotation = 270, name = "BottomLeft"},
-        {pos = UDim2.new(1, 2, 1, 2), rotation = 180, name = "BottomRight"}
+    local positions = {
+        {UDim2.new(0, 8, 0, 8), 0},           -- Top Left
+        {UDim2.new(1, -28, 0, 8), 90},        -- Top Right
+        {UDim2.new(0, 8, 1, -28), -90},       -- Bottom Left
+        {UDim2.new(1, -28, 1, -28), 180}      -- Bottom Right
     }
     
-    for _, corner in ipairs(corners) do
-        -- Main corner container
-        local cornerContainer = Instance.new("Frame")
-        cornerContainer.Name = corner.name
-        cornerContainer.BackgroundTransparency = 1
-        cornerContainer.Size = UDim2.new(0, 40, 0, 40)
-        cornerContainer.Position = corner.pos
-        cornerContainer.AnchorPoint = Vector2.new(0.5, 0.5)
-        cornerContainer.Rotation = corner.rotation
-        cornerContainer.Parent = parent
-        cornerContainer.ZIndex = 10
+    for _, posData in ipairs(positions) do
+        local cornerFrame = Instance.new("Frame")
+        cornerFrame.BackgroundTransparency = 1
+        cornerFrame.Size = UDim2.new(0, 20, 0, 20)
+        cornerFrame.Position = posData[1]
+        cornerFrame.Rotation = posData[2]
+        cornerFrame.ZIndex = 10
+        cornerFrame.Parent = parent
         
-        -- Horizontal bar (BRIGHTER & THICKER)
-        local hBar = createFrame({
-            BackgroundColor = Theme.Accent,
-            Size = UDim2.new(0, 30, 0, 4),
-            Position = UDim2.new(0, 0, 0, 0),
-            Parent = cornerContainer,
-        })
-        hBar.BackgroundTransparency = 0
+        -- Vertical line
+        local line1 = Instance.new("Frame")
+        line1.BackgroundColor3 = Theme.Accent
+        line1.BorderSizePixel = 0
+        line1.Size = UDim2.new(0, 2, 1, 0)
+        line1.Position = UDim2.new(0, 0, 0, 0)
+        line1.Parent = cornerFrame
         
-        -- Horizontal bar STRONG glow
-        local hGlow = createStroke(hBar, Theme.Accent, 3)
-        hGlow.Transparency = 0.2
-        
-        -- Small square at end
-        local hSquare = createFrame({
-            BackgroundColor = Theme.Accent,
-            Size = UDim2.new(0, 5, 0, 5),
-            Position = UDim2.new(0, 32, 0, -1),
-            Parent = cornerContainer,
-        })
-        createCorner(hSquare, 1)
-        
-        -- Vertical bar (BRIGHTER & THICKER)
-        local vBar = createFrame({
-            BackgroundColor = Theme.Accent,
-            Size = UDim2.new(0, 4, 0, 20),
-            Position = UDim2.new(0, 0, 0, 0),
-            Parent = cornerContainer,
-        })
-        vBar.BackgroundTransparency = 0
-        
-        -- Vertical bar STRONG glow
-        local vGlow = createStroke(vBar, Theme.Accent, 3)
-        vGlow.Transparency = 0.2
-        
-        -- Small decorative line
-        local decLine = createFrame({
-            BackgroundColor = Theme.Accent,
-            Size = UDim2.new(0, 12, 0, 1),
-            Position = UDim2.new(0, 5, 0, 23),
-            Parent = cornerContainer,
-        })
-        decLine.BackgroundTransparency = 0.6
-        
-        -- SUPER BRIGHT Animated glow spot (ตรงมุม)
-        local glowSpot = createFrame({
-            BackgroundColor = Theme.Accent,
-            Size = UDim2.new(0, 10, 0, 10),
-            Position = UDim2.new(0, -3, 0, -3),
-            Parent = cornerContainer,
-        })
-        createCorner(glowSpot, 5)
-        glowSpot.BackgroundTransparency = 0
-        
-        -- STRONG spot glow
-        local spotGlow = createStroke(glowSpot, Theme.Accent, 4)
-        spotGlow.Transparency = 0
-        
-        -- INTENSE Pulse animation
-        task.spawn(function()
-            while glowSpot and glowSpot.Parent do
-                createTween(glowSpot, {BackgroundTransparency = 0.3}, 1.2)
-                createTween(spotGlow, {Transparency = 0.3, Thickness = 6}, 1.2)
-                task.wait(1.2)
-                createTween(glowSpot, {BackgroundTransparency = 0}, 1.2)
-                createTween(spotGlow, {Transparency = 0, Thickness = 4}, 1.2)
-                task.wait(1.2)
-            end
-        end)
+        -- Horizontal line
+        local line2 = Instance.new("Frame")
+        line2.BackgroundColor3 = Theme.Accent
+        line2.BorderSizePixel = 0
+        line2.Size = UDim2.new(1, 0, 0, 2)
+        line2.Position = UDim2.new(0, 0, 0, 0)
+        line2.Parent = cornerFrame
     end
 end
 
@@ -645,38 +595,21 @@ function NotificationSystem:Notify(options)
         height = 70
     end
     
-    -- Add glow to notification border
-    local notifGlow = Instance.new("UIStroke")
-    notifGlow.Color = accentColor
-    notifGlow.Thickness = 2
-    notifGlow.Transparency = 1
-    notifGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    notifGlow.Parent = notifFrame
-    
-    -- Start off-screen (slide from right) and transparent
-    notifFrame.Position = UDim2.new(0, 50, 0, notifFrame.AbsolutePosition.Y)
+    -- Start transparent for fade-in animation
     notifFrame.BackgroundTransparency = 1
     titleLabel.TextTransparency = 1
     descLabel.TextTransparency = 1
     accentBar.BackgroundTransparency = 1
     
-    -- Slide + Fade in animation with bounce
+    -- Animate in
     createTween(notifFrame, {
         Size = UDim2.new(1, 0, 0, height),
-        Position = UDim2.new(0, 0, 0, 0),
         BackgroundTransparency = 0
-    }, 0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+    }, 0.3)
     
-    createTween(titleLabel, {TextTransparency = 0}, 0.4)
-    createTween(descLabel, {TextTransparency = 0}, 0.4)
-    createTween(accentBar, {BackgroundTransparency = 0}, 0.4)
-    
-    -- Glow pulse on entrance
-    task.spawn(function()
-        createTween(notifGlow, {Transparency = 0.4}, 0.3)
-        task.wait(0.3)
-        createTween(notifGlow, {Transparency = 0.8}, 0.5)
-    end)
+    createTween(titleLabel, {TextTransparency = 0}, 0.3)
+    createTween(descLabel, {TextTransparency = 0}, 0.3)
+    createTween(accentBar, {BackgroundTransparency = 0}, 0.3)
     
     -- Auto remove after duration
     task.delay(duration, function()
@@ -745,21 +678,6 @@ function KapaoUI:CreateWindow(options)
     -- MAIN WINDOW FRAME
     -- ═══════════════════════════════════════════════════════════════════════════
     
-    -- Shadow layer (for depth)
-    local shadowFrame = createFrame({
-        BackgroundColor = Color3.fromRGB(0, 0, 0),
-        Size = UDim2.new(0, 690, 0, 460),
-        Position = UDim2.new(0.5, -345, 0.5, -230),
-        Parent = rootGui,
-    })
-    shadowFrame.BackgroundTransparency = 0.5
-    shadowFrame.ZIndex = 0
-    createCorner(shadowFrame, 0)
-    
-    -- Shadow glow
-    local shadowGlow = createStroke(shadowFrame, Color3.fromRGB(0, 0, 0), 8)
-    shadowGlow.Transparency = 0.4
-    
     local mainWindow = createFrame({
         BackgroundColor = Theme.WindowBackground,
         Size = UDim2.new(0, 680, 0, 450),
@@ -768,14 +686,188 @@ function KapaoUI:CreateWindow(options)
     })
     mainWindow.Name = "KapaoWindow"
     mainWindow.ClipsDescendants = true
-    mainWindow.ZIndex = 1
     createCorner(mainWindow, 0)
     
-    -- Add corner decorations
+    -- ═══════════════════════════════════════════════════════════════════════════
+    -- ANIMATED GRADIENT BACKGROUND
+    -- ═══════════════════════════════════════════════════════════════════════════
+    
+    local gradientBg = Instance.new("Frame")
+    gradientBg.BackgroundColor3 = Color3.fromRGB(10, 15, 25)
+    gradientBg.Size = UDim2.new(1, 0, 1, 0)
+    gradientBg.ZIndex = -2
+    gradientBg.BorderSizePixel = 0
+    gradientBg.Parent = mainWindow
+    
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(5, 10, 20)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(10, 20, 35)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 15, 25))
+    }
+    gradient.Rotation = 45
+    gradient.Parent = gradientBg
+    
+    -- Animate gradient rotation
+    task.spawn(function()
+        while gradientBg.Parent do
+            for i = 0, 360, 1 do
+                if not gradientBg.Parent then break end
+                gradient.Rotation = i
+                task.wait(0.05)
+            end
+        end
+    end)
+    
+    -- ═══════════════════════════════════════════════════════════════════════════
+    -- GRID PATTERN OVERLAY
+    -- ═══════════════════════════════════════════════════════════════════════════
+    
+    local gridPattern = Instance.new("Frame")
+    gridPattern.BackgroundTransparency = 0.95
+    gridPattern.BackgroundColor3 = Theme.Accent
+    gridPattern.Size = UDim2.new(1, 0, 1, 0)
+    gridPattern.ZIndex = -1
+    gridPattern.BorderSizePixel = 0
+    gridPattern.Parent = mainWindow
+    
+    -- Create grid lines
+    for i = 0, 10 do
+        -- Vertical lines
+        local vLine = Instance.new("Frame")
+        vLine.BackgroundColor3 = Theme.Accent
+        vLine.BackgroundTransparency = 0.92
+        vLine.Size = UDim2.new(0, 1, 1, 0)
+        vLine.Position = UDim2.new(i / 10, 0, 0, 0)
+        vLine.BorderSizePixel = 0
+        vLine.ZIndex = -1
+        vLine.Parent = gridPattern
+        
+        -- Horizontal lines
+        local hLine = Instance.new("Frame")
+        hLine.BackgroundColor3 = Theme.Accent
+        hLine.BackgroundTransparency = 0.92
+        hLine.Size = UDim2.new(1, 0, 0, 1)
+        hLine.Position = UDim2.new(0, 0, i / 10, 0)
+        hLine.BorderSizePixel = 0
+        hLine.ZIndex = -1
+        hLine.Parent = gridPattern
+    end
+    
+    -- ═══════════════════════════════════════════════════════════════════════════
+    -- CORNER DECORATIONS (SCI-FI L-SHAPES)
+    -- ═══════════════════════════════════════════════════════════════════════════
+    
+    local function createAdvancedCorner(parent, position, rotation)
+        local cornerGroup = Instance.new("Frame")
+        cornerGroup.BackgroundTransparency = 1
+        cornerGroup.Size = UDim2.new(0, 40, 0, 40)
+        cornerGroup.Position = position
+        cornerGroup.ZIndex = 5
+        cornerGroup.Parent = parent
+        
+        -- Main L-shape (horizontal)
+        local hBar = Instance.new("Frame")
+        hBar.BackgroundColor3 = Theme.Accent
+        hBar.Size = UDim2.new(0, 25, 0, 3)
+        hBar.BorderSizePixel = 0
+        hBar.Parent = cornerGroup
+        createStroke(hBar, Theme.Accent, 1)
+        
+        -- Main L-shape (vertical)
+        local vBar = Instance.new("Frame")
+        vBar.BackgroundColor3 = Theme.Accent
+        vBar.Size = UDim2.new(0, 3, 0, 25)
+        vBar.BorderSizePixel = 0
+        vBar.Parent = cornerGroup
+        createStroke(vBar, Theme.Accent, 1)
+        
+        -- Small decorative bars
+        for i = 1, 3 do
+            local smallBar = Instance.new("Frame")
+            smallBar.BackgroundColor3 = Theme.Accent
+            smallBar.Size = UDim2.new(0, 8, 0, 2)
+            smallBar.BorderSizePixel = 0
+            smallBar.BackgroundTransparency = 0.3
+            smallBar.Parent = cornerGroup
+        end
+        
+        -- Glow spot
+        local glowSpot = Instance.new("Frame")
+        glowSpot.BackgroundColor3 = Theme.Accent
+        glowSpot.Size = UDim2.new(0, 6, 0, 6)
+        glowSpot.Position = UDim2.new(0, -3, 0, -3)
+        glowSpot.BorderSizePixel = 0
+        glowSpot.ZIndex = 6
+        glowSpot.Parent = cornerGroup
+        createCorner(glowSpot, 3)
+        
+        -- Pulse animation for glow
+        task.spawn(function()
+            while glowSpot.Parent do
+                createTween(glowSpot, {BackgroundTransparency = 0}, 1, Enum.EasingStyle.Sine)
+                task.wait(1)
+                createTween(glowSpot, {BackgroundTransparency = 0.5}, 1, Enum.EasingStyle.Sine)
+                task.wait(1)
+            end
+        end)
+        
+        -- Rotate based on corner
+        cornerGroup.Rotation = rotation
+        
+        return cornerGroup
+    end
+    
+    -- Add corners to all 4 positions
+    createAdvancedCorner(mainWindow, UDim2.new(0, 5, 0, 5), 0) -- Top Left
+    createAdvancedCorner(mainWindow, UDim2.new(1, -45, 0, 5), 90) -- Top Right
+    createAdvancedCorner(mainWindow, UDim2.new(1, -45, 1, -45), 180) -- Bottom Right
+    createAdvancedCorner(mainWindow, UDim2.new(0, 5, 1, -45), 270) -- Bottom Left
+    
+    -- ═══════════════════════════════════════════════════════════════════════════
+    -- FLOATING PARTICLES (Optional - lightweight)
+    -- ═══════════════════════════════════════════════════════════════════════════
+    
+    local particleContainer = Instance.new("Frame")
+    particleContainer.BackgroundTransparency = 1
+    particleContainer.Size = UDim2.new(1, 0, 1, 0)
+    particleContainer.ZIndex = 1
+    particleContainer.ClipsDescendants = true
+    particleContainer.Parent = mainWindow
+    
+    -- Spawn particles
+    task.spawn(function()
+        for i = 1, 8 do
+            local particle = Instance.new("Frame")
+            particle.BackgroundColor3 = Theme.Accent
+            particle.BackgroundTransparency = 0.7
+            particle.Size = UDim2.new(0, 2, 0, 2)
+            particle.Position = UDim2.new(math.random(), 0, math.random(), 0)
+            particle.BorderSizePixel = 0
+            particle.ZIndex = 1
+            particle.Parent = particleContainer
+            createCorner(particle, 1)
+            
+            -- Animate particle
+            task.spawn(function()
+                while particle.Parent do
+                    local randomX = math.random()
+                    local randomY = math.random()
+                    createTween(particle, {
+                        Position = UDim2.new(randomX, 0, randomY, 0),
+                        BackgroundTransparency = math.random(50, 90) / 100
+                    }, math.random(5, 10), Enum.EasingStyle.Linear)
+                    task.wait(math.random(5, 10))
+                end
+            end)
+        end
+    end)
+    
+    -- Add corner decorations (old function kept for compatibility)
     createCornerDecorations(mainWindow)
     
     -- ═══════════════════════════════════════════════════════════════════════════
-    -- ANIMATED BORDER (Advanced Breathing Glow Effect)
+    -- ANIMATED BORDER (Breathing Glow Effect)
     -- ═══════════════════════════════════════════════════════════════════════════
     
     local borderFrame = Instance.new("Frame")
@@ -784,66 +876,15 @@ function KapaoUI:CreateWindow(options)
     borderFrame.ZIndex = 10
     borderFrame.Parent = mainWindow
     
-    -- TRIPLE GLOW SYSTEM (สว่างจ้าแบบตัวอย่าง)
+    local borderStroke = createStroke(borderFrame, Theme.ElementBorder, 2)
     
-    -- Layer 1: Inner border (sharp, bright)
-    local borderStroke = createStroke(borderFrame, Theme.Accent, 3)
-    borderStroke.Transparency = 0
-    
-    -- Layer 2: Mid glow (medium blur)
-    local midGlow = Instance.new("UIStroke")
-    midGlow.Color = Theme.Accent
-    midGlow.Thickness = 6
-    midGlow.Transparency = 0.3
-    midGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    midGlow.Parent = borderFrame
-    
-    -- Layer 3: Outer glow (soft, wide)
-    local outerGlow = Instance.new("UIStroke")
-    outerGlow.Color = Theme.AccentGlow
-    outerGlow.Thickness = 10
-    outerGlow.Transparency = 0.5
-    outerGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    outerGlow.Parent = borderFrame
-    
-    -- ADVANCED TRIPLE GLOW BREATHING ANIMATION
+    -- Breathing animation loop
     task.spawn(function()
         while mainWindow.Parent do
-            -- Pulse OUT (expand + SUPER BRIGHT)
-            createTween(borderStroke, {
-                Thickness = 4,
-                Transparency = 0
-            }, 1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-            
-            createTween(midGlow, {
-                Thickness = 8,
-                Transparency = 0.1
-            }, 1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-            
-            createTween(outerGlow, {
-                Thickness = 14,
-                Transparency = 0.3
-            }, 1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-            
-            task.wait(1.5)
-            
-            -- Pulse IN (contract + dimmer)
-            createTween(borderStroke, {
-                Thickness = 3,
-                Transparency = 0
-            }, 1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-            
-            createTween(midGlow, {
-                Thickness = 6,
-                Transparency = 0.3
-            }, 1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-            
-            createTween(outerGlow, {
-                Thickness = 10,
-                Transparency = 0.5
-            }, 1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-            
-            task.wait(1.5)
+            createTween(borderStroke, {Thickness = 3}, 1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+            task.wait(1)
+            createTween(borderStroke, {Thickness = 2}, 1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+            task.wait(1)
         end
     end)
     
@@ -1114,35 +1155,15 @@ function KapaoUI:CreateWindow(options)
         tabButton.BackgroundColor3 = Theme.ElementBackground
         tabButton.BorderSizePixel = 0
         tabButton.Size = UDim2.new(1, 0, 0, 36)
-        tabButton.Text = "  " .. name
+        tabButton.Text = name
         tabButton.Font = Enum.Font.GothamSemibold
         tabButton.TextSize = 13
         tabButton.TextColor3 = Theme.TextPrimary
-        tabButton.TextXAlignment = Enum.TextXAlignment.Left
         tabButton.AutoButtonColor = false
         tabButton.Parent = sidebar
         createCorner(tabButton, 6)
         
         local tabButtonStroke = createStroke(tabButton, Theme.ElementBorder, 1)
-        tabButtonStroke.Transparency = 0.6
-        
-        -- Slide indicator bar (left side)
-        local indicatorBar = createFrame({
-            BackgroundColor = Theme.Accent,
-            Size = UDim2.new(0, 3, 0, 0),
-            Position = UDim2.new(0, 0, 0.5, 0),
-            AnchorPoint = Vector2.new(0, 0.5),
-            Parent = tabButton,
-        })
-        createCorner(indicatorBar, 2)
-        
-        -- Indicator glow
-        local indicatorGlow = Instance.new("UIStroke")
-        indicatorGlow.Color = Theme.Accent
-        indicatorGlow.Thickness = 2
-        indicatorGlow.Transparency = 0
-        indicatorGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-        indicatorGlow.Parent = indicatorBar
         
         -- ═══════════════════════════════════════════════════════════════════════
         -- TAB CONTENT FRAME (Scrolling)
@@ -1192,35 +1213,15 @@ function KapaoUI:CreateWindow(options)
             for _, otherTab in ipairs(window._tabs) do
                 otherTab.Selected = false
                 otherTab.Frame.Visible = false
-                createTween(otherTab.Button, {BackgroundColor3 = Theme.ElementBackground}, 0.3)
-                createTween(otherTab.Stroke, {
-                    Color = Theme.ElementBorder,
-                    Transparency = 0.6
-                }, 0.3)
-                
-                -- Hide indicator
-                local otherIndicator = otherTab.Button:FindFirstChild("Frame")
-                if otherIndicator then
-                    createTween(otherIndicator, {
-                        Size = UDim2.new(0, 3, 0, 0)
-                    }, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In)
-                end
+                createTween(otherTab.Button, {BackgroundColor3 = Theme.ElementBackground}, 0.2)
+                otherTab.Stroke.Color = Theme.ElementBorder
             end
             
-            -- Select this tab with animation
+            -- Select this tab
             tab.Selected = true
             tab.Frame.Visible = true
-            createTween(tab.Button, {BackgroundColor3 = Theme.ElementBackgroundHover}, 0.3)
-            createTween(tab.Stroke, {
-                Color = Theme.Accent,
-                Transparency = 0.2
-            }, 0.3)
-            
-            -- Show indicator with slide effect
-            createTween(indicatorBar, {
-                Size = UDim2.new(0, 3, 1, -8)
-            }, 0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-            
+            createTween(tab.Button, {BackgroundColor3 = Theme.ElementBackgroundHover}, 0.2)
+            tab.Stroke.Color = Theme.Accent
             window._activeTab = tab
         end
         
@@ -1259,45 +1260,14 @@ function KapaoUI:CreateWindow(options)
         function tab:AddSection(text)
             local sectionFrame = createFrame({
                 BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
-                Size = UDim2.new(1, 0, 0, 36),
+                Size = UDim2.new(1, 0, 0, 30),
                 Parent = tabFrame,
             })
             sectionFrame.BackgroundTransparency = 1
             
             local sectionLabel = createTextLabel(sectionFrame, text or "Section", 15)
-            sectionLabel.Position = UDim2.new(0, 0, 0, 0)
-            sectionLabel.Size = UDim2.new(1, 0, 0, 22)
+            sectionLabel.Size = UDim2.new(1, 0, 1, 0)
             sectionLabel.TextColor3 = Theme.Accent
-            sectionLabel.Font = Enum.Font.GothamBold
-            
-            -- Decorative gradient line under section (BIGGER & BRIGHTER)
-            local underline = createFrame({
-                BackgroundColor = Theme.Accent,
-                Size = UDim2.new(0, 80, 0, 3),
-                Position = UDim2.new(0, 0, 0, 26),
-                Parent = sectionFrame,
-            })
-            createCorner(underline, 2)
-            
-            -- Underline gradient
-            local lineGradient = Instance.new("UIGradient")
-            lineGradient.Color = ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Theme.Accent),
-                ColorSequenceKeypoint.new(1, Theme.AccentDark)
-            })
-            lineGradient.Parent = underline
-            
-            -- Underline glow (BRIGHTER)
-            local lineGlow = Instance.new("UIStroke")
-            lineGlow.Color = Theme.Accent
-            lineGlow.Thickness = 2
-            lineGlow.Transparency = 0.2
-            lineGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            lineGlow.Parent = underline
-            
-            -- Animated fade in
-            underline.Size = UDim2.new(0, 0, 0, 3)
-            createTween(underline, {Size = UDim2.new(0, 80, 0, 3)}, 0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
             
             return sectionFrame
         end
@@ -1315,34 +1285,17 @@ function KapaoUI:CreateWindow(options)
         function tab:AddDivider()
             local dividerFrame = createFrame({
                 BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
-                Size = UDim2.new(1, 0, 0, 16),
+                Size = UDim2.new(1, 0, 0, 12),
                 Parent = tabFrame,
             })
             dividerFrame.BackgroundTransparency = 1
             
             local line = createFrame({
-                BackgroundColor = Theme.Accent,
-                Size = UDim2.new(1, 0, 0, 2),
-                Position = UDim2.new(0, 0, 0.5, -1),
+                BackgroundColor = Theme.ElementBorder,
+                Size = UDim2.new(1, 0, 0, 1),
+                Position = UDim2.new(0, 0, 0.5, 0),
                 Parent = dividerFrame,
             })
-            
-            -- Divider gradient (fade out at edges - BRIGHTER)
-            local divGradient = Instance.new("UIGradient")
-            divGradient.Transparency = NumberSequence.new({
-                NumberSequenceKeypoint.new(0, 0.6),
-                NumberSequenceKeypoint.new(0.5, 0),
-                NumberSequenceKeypoint.new(1, 0.6)
-            })
-            divGradient.Parent = line
-            
-            -- Add subtle glow
-            local divGlow = Instance.new("UIStroke")
-            divGlow.Color = Theme.Accent
-            divGlow.Thickness = 1
-            divGlow.Transparency = 0.5
-            divGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            divGlow.Parent = line
             
             return dividerFrame
         end
@@ -1481,80 +1434,26 @@ function KapaoUI:CreateWindow(options)
             button.Text = label
             button.Font = Enum.Font.GothamSemibold
             button.TextSize = 13
-            button.TextColor3 = Color3.fromRGB(255, 255, 255)
+            button.TextColor3 = Theme.Accent
             button.AutoButtonColor = false
             button.Parent = buttonFrame
-            createCorner(button, 8)
+            createCorner(button, 6)
             
-            -- Button stroke with glow (BRIGHTER)
-            local buttonStroke = createStroke(button, Theme.Accent, 2)
-            buttonStroke.Transparency = 0.3
+            local buttonStroke = createStroke(button, Theme.Accent, 1)
             
-            -- Inner glow effect (STRONGER)
-            local innerGlow = Instance.new("UIStroke")
-            innerGlow.Color = Theme.Accent
-            innerGlow.Thickness = 2
-            innerGlow.Transparency = 0.6
-            innerGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            innerGlow.Parent = button
-            
-            -- Gradient overlay (MORE VISIBLE)
-            local gradient = Instance.new("UIGradient")
-            gradient.Color = ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Theme.Accent),
-                ColorSequenceKeypoint.new(1, Theme.AccentDark)
-            })
-            gradient.Rotation = 90
-            gradient.Transparency = NumberSequence.new({
-                NumberSequenceKeypoint.new(0, 0.8),
-                NumberSequenceKeypoint.new(1, 0.65)
-            })
-            gradient.Parent = button
-            
-            -- Hover effect with glow
             button.MouseEnter:Connect(function()
                 createTween(button, {BackgroundColor3 = Theme.ElementBackgroundHover}, 0.2)
-                createTween(buttonStroke, {
-                    Thickness = 2,
-                    Transparency = 0.2
-                }, 0.2)
-                createTween(innerGlow, {
-                    Thickness = 2,
-                    Transparency = 0.5
-                }, 0.2)
-                createTween(gradient, {
-                    Transparency = NumberSequence.new({
-                        NumberSequenceKeypoint.new(0, 0.7),
-                        NumberSequenceKeypoint.new(1, 0.5)
-                    })
-                }, 0.2)
+                buttonStroke.Thickness = 2
             end)
             
             button.MouseLeave:Connect(function()
                 createTween(button, {BackgroundColor3 = Theme.ElementBackground}, 0.2)
-                createTween(buttonStroke, {
-                    Thickness = 1,
-                    Transparency = 0.5
-                }, 0.2)
-                createTween(innerGlow, {
-                    Thickness = 1,
-                    Transparency = 0.8
-                }, 0.2)
-                createTween(gradient, {
-                    Transparency = NumberSequence.new({
-                        NumberSequenceKeypoint.new(0, 0.85),
-                        NumberSequenceKeypoint.new(1, 0.7)
-                    })
-                }, 0.2)
+                buttonStroke.Thickness = 1
             end)
             
-            -- Click effect with flash
             button.MouseButton1Click:Connect(function()
-                createTween(button, {BackgroundColor3 = Theme.Accent}, 0.1).Completed:Connect(function()
-                    createTween(button, {BackgroundColor3 = Theme.ElementBackgroundHover}, 0.3)
-                end)
-                createTween(buttonStroke, {Transparency = 0}, 0.1).Completed:Connect(function()
-                    createTween(buttonStroke, {Transparency = 0.5}, 0.3)
+                createTween(button, {BackgroundColor3 = Theme.AccentDark}, 0.1).Completed:Connect(function()
+                    createTween(button, {BackgroundColor3 = Theme.ElementBackgroundHover}, 0.2)
                 end)
                 pcall(callback)
             end)
@@ -1613,15 +1512,6 @@ function KapaoUI:CreateWindow(options)
             createCorner(switchBg, 12)
             
             local switchStroke = createStroke(switchBg, Theme.ElementBorder, 1)
-            switchStroke.Transparency = 0.4
-            
-            -- Outer glow for switch (STRONGER)
-            local switchGlow = Instance.new("UIStroke")
-            switchGlow.Color = Theme.Accent
-            switchGlow.Thickness = 4
-            switchGlow.Transparency = 1
-            switchGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            switchGlow.Parent = switchBg
             
             -- Switch knob
             local switchKnob = createFrame({
@@ -1632,51 +1522,24 @@ function KapaoUI:CreateWindow(options)
             })
             createCorner(switchKnob, 9)
             
-            -- Knob glow
-            local knobGlow = Instance.new("UIStroke")
-            knobGlow.Color = Theme.Accent
-            knobGlow.Thickness = 2
-            knobGlow.Transparency = 1
-            knobGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            knobGlow.Parent = switchKnob
-            
             local state = default
             
-            -- Update visual state with glow effects
+            -- Update visual state
             local function updateVisual()
                 if state then
-                    -- ON state - bright glow
-                    createTween(switchBg, {BackgroundColor3 = Theme.Accent}, 0.3)
+                    createTween(switchBg, {BackgroundColor3 = Theme.Accent}, 0.25)
                     createTween(switchKnob, {
                         Position = UDim2.new(1, -21, 0, 3),
                         BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                    }, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-                    createTween(switchStroke, {
-                        Color = Theme.Accent,
-                        Transparency = 0
-                    }, 0.3)
-                    createTween(switchGlow, {Transparency = 0.3}, 0.3)
-                    createTween(knobGlow, {Transparency = 0.1}, 0.3)
-                    
-                    -- Pulse effect when turning on
-                    task.spawn(function()
-                        createTween(switchKnob, {Size = UDim2.new(0, 20, 0, 20)}, 0.15)
-                        task.wait(0.15)
-                        createTween(switchKnob, {Size = UDim2.new(0, 18, 0, 18)}, 0.15)
-                    end)
+                    }, 0.25)
+                    switchStroke.Color = Theme.Accent
                 else
-                    -- OFF state - dim
-                    createTween(switchBg, {BackgroundColor3 = Theme.ElementBackground}, 0.3)
+                    createTween(switchBg, {BackgroundColor3 = Theme.ElementBackground}, 0.25)
                     createTween(switchKnob, {
                         Position = UDim2.new(0, 3, 0, 3),
                         BackgroundColor3 = Color3.fromRGB(140, 150, 170)
-                    }, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-                    createTween(switchStroke, {
-                        Color = Theme.ElementBorder,
-                        Transparency = 0.5
-                    }, 0.3)
-                    createTween(switchGlow, {Transparency = 1}, 0.3)
-                    createTween(knobGlow, {Transparency = 1}, 0.3)
+                    }, 0.25)
+                    switchStroke.Color = Theme.ElementBorder
                 end
             end
             
@@ -1774,7 +1637,7 @@ function KapaoUI:CreateWindow(options)
             createCorner(sliderBg, 4)
             createStroke(sliderBg, Theme.ElementBorder, 1)
             
-            -- Slider fill (with glow)
+            -- Slider fill
             local sliderFill = createFrame({
                 BackgroundColor = Theme.Accent,
                 Size = UDim2.new(0, 0, 1, 0),
@@ -1782,71 +1645,32 @@ function KapaoUI:CreateWindow(options)
             })
             createCorner(sliderFill, 4)
             
-            -- Fill glow effect (BRIGHTER)
-            local fillGlow = Instance.new("UIStroke")
-            fillGlow.Color = Theme.Accent
-            fillGlow.Thickness = 3
-            fillGlow.Transparency = 0.3
-            fillGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            fillGlow.Parent = sliderFill
-            
-            -- Gradient for fill
-            local fillGradient = Instance.new("UIGradient")
-            fillGradient.Color = ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Theme.Accent),
-                ColorSequenceKeypoint.new(1, Theme.AccentDark)
-            })
-            fillGradient.Parent = sliderFill
-            
-            -- Slider knob (BIGGER & BRIGHTER)
+            -- Slider knob
             local sliderKnob = createFrame({
                 BackgroundColor = Color3.fromRGB(255, 255, 255),
-                Size = UDim2.new(0, 18, 0, 18),
-                Position = UDim2.new(0, 0, 0.5, -9),
+                Size = UDim2.new(0, 16, 0, 16),
+                Position = UDim2.new(0, 0, 0.5, -8),
                 Parent = sliderBg,
             })
-            createCorner(sliderKnob, 9)
-            local knobStroke = createStroke(sliderKnob, Theme.Accent, 2)
-            knobStroke.Transparency = 0.1
-            
-            -- Knob glow (STRONGER)
-            local knobGlow = Instance.new("UIStroke")
-            knobGlow.Color = Theme.Accent
-            knobGlow.Thickness = 5
-            knobGlow.Transparency = 0.4
-            knobGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            knobGlow.Parent = sliderKnob
+            createCorner(sliderKnob, 8)
+            createStroke(sliderKnob, Theme.Accent, 2)
             
             local value = default
             
-            -- Update visual with smooth animation
-            local function updateVisual(animated)
+            -- Update visual
+            local function updateVisual()
                 local percent = (value - min) / (max - min)
-                
-                if animated then
-                    createTween(sliderFill, {Size = UDim2.new(percent, 0, 1, 0)}, 0.2)
-                    createTween(sliderKnob, {Position = UDim2.new(percent, -9, 0.5, -9)}, 0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-                    
-                    -- Pulse knob when value changes
-                    createTween(sliderKnob, {Size = UDim2.new(0, 22, 0, 22)}, 0.1)
-                    createTween(knobGlow, {Transparency = 0.1}, 0.1)
-                    task.wait(0.1)
-                    createTween(sliderKnob, {Size = UDim2.new(0, 18, 0, 18)}, 0.2)
-                    createTween(knobGlow, {Transparency = 0.4}, 0.2)
-                else
-                    sliderFill.Size = UDim2.new(percent, 0, 1, 0)
-                    sliderKnob.Position = UDim2.new(percent, -9, 0.5, -9)
-                end
-                
+                sliderFill.Size = UDim2.new(percent, 0, 1, 0)
+                sliderKnob.Position = UDim2.new(percent, -8, 0.5, -8)
                 valueLabel.Text = tostring(value)
             end
             
             updateVisual()
             
             -- Set value function
-            local function setValue(newValue, animated)
+            local function setValue(newValue)
                 value = math.clamp(math.floor((newValue + increment / 2) / increment) * increment, min, max)
-                updateVisual(animated)
+                updateVisual()
                 config:Set(key, value)
                 pcall(callback, value)
             end
