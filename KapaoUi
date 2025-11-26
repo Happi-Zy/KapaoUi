@@ -344,18 +344,18 @@ local function createCornerDecorations(parent)
         cornerContainer.Parent = parent
         cornerContainer.ZIndex = 10
         
-        -- Horizontal bar (longer)
+        -- Horizontal bar (BRIGHTER & THICKER)
         local hBar = createFrame({
             BackgroundColor = Theme.Accent,
-            Size = UDim2.new(0, 30, 0, 3),
+            Size = UDim2.new(0, 30, 0, 4),
             Position = UDim2.new(0, 0, 0, 0),
             Parent = cornerContainer,
         })
-        hBar.BackgroundTransparency = 0.3
+        hBar.BackgroundTransparency = 0
         
-        -- Horizontal bar glow
-        local hGlow = createStroke(hBar, Theme.Accent, 2)
-        hGlow.Transparency = 0.5
+        -- Horizontal bar STRONG glow
+        local hGlow = createStroke(hBar, Theme.Accent, 3)
+        hGlow.Transparency = 0.2
         
         -- Small square at end
         local hSquare = createFrame({
@@ -366,18 +366,18 @@ local function createCornerDecorations(parent)
         })
         createCorner(hSquare, 1)
         
-        -- Vertical bar (shorter)
+        -- Vertical bar (BRIGHTER & THICKER)
         local vBar = createFrame({
             BackgroundColor = Theme.Accent,
-            Size = UDim2.new(0, 3, 0, 20),
+            Size = UDim2.new(0, 4, 0, 20),
             Position = UDim2.new(0, 0, 0, 0),
             Parent = cornerContainer,
         })
-        vBar.BackgroundTransparency = 0.3
+        vBar.BackgroundTransparency = 0
         
-        -- Vertical bar glow
-        local vGlow = createStroke(vBar, Theme.Accent, 2)
-        vGlow.Transparency = 0.5
+        -- Vertical bar STRONG glow
+        local vGlow = createStroke(vBar, Theme.Accent, 3)
+        vGlow.Transparency = 0.2
         
         -- Small decorative line
         local decLine = createFrame({
@@ -388,28 +388,29 @@ local function createCornerDecorations(parent)
         })
         decLine.BackgroundTransparency = 0.6
         
-        -- Animated glow spot
+        -- SUPER BRIGHT Animated glow spot (ตรงมุม)
         local glowSpot = createFrame({
             BackgroundColor = Theme.Accent,
-            Size = UDim2.new(0, 8, 0, 8),
-            Position = UDim2.new(0, -2, 0, -2),
+            Size = UDim2.new(0, 10, 0, 10),
+            Position = UDim2.new(0, -3, 0, -3),
             Parent = cornerContainer,
         })
-        createCorner(glowSpot, 4)
-        glowSpot.BackgroundTransparency = 0.4
+        createCorner(glowSpot, 5)
+        glowSpot.BackgroundTransparency = 0
         
-        local spotGlow = createStroke(glowSpot, Theme.Accent, 3)
-        spotGlow.Transparency = 0.3
+        -- STRONG spot glow
+        local spotGlow = createStroke(glowSpot, Theme.Accent, 4)
+        spotGlow.Transparency = 0
         
-        -- Pulse animation for glow spot
+        -- INTENSE Pulse animation
         task.spawn(function()
             while glowSpot and glowSpot.Parent do
-                createTween(glowSpot, {BackgroundTransparency = 0.7}, 1.5)
-                createTween(spotGlow, {Transparency = 0.7}, 1.5)
-                task.wait(1.5)
-                createTween(glowSpot, {BackgroundTransparency = 0.4}, 1.5)
-                createTween(spotGlow, {Transparency = 0.3}, 1.5)
-                task.wait(1.5)
+                createTween(glowSpot, {BackgroundTransparency = 0.3}, 1.2)
+                createTween(spotGlow, {Transparency = 0.3, Thickness = 6}, 1.2)
+                task.wait(1.2)
+                createTween(glowSpot, {BackgroundTransparency = 0}, 1.2)
+                createTween(spotGlow, {Transparency = 0, Thickness = 4}, 1.2)
+                task.wait(1.2)
             end
         end)
     end
@@ -744,6 +745,21 @@ function KapaoUI:CreateWindow(options)
     -- MAIN WINDOW FRAME
     -- ═══════════════════════════════════════════════════════════════════════════
     
+    -- Shadow layer (for depth)
+    local shadowFrame = createFrame({
+        BackgroundColor = Color3.fromRGB(0, 0, 0),
+        Size = UDim2.new(0, 690, 0, 460),
+        Position = UDim2.new(0.5, -345, 0.5, -230),
+        Parent = rootGui,
+    })
+    shadowFrame.BackgroundTransparency = 0.5
+    shadowFrame.ZIndex = 0
+    createCorner(shadowFrame, 0)
+    
+    -- Shadow glow
+    local shadowGlow = createStroke(shadowFrame, Color3.fromRGB(0, 0, 0), 8)
+    shadowGlow.Transparency = 0.4
+    
     local mainWindow = createFrame({
         BackgroundColor = Theme.WindowBackground,
         Size = UDim2.new(0, 680, 0, 450),
@@ -752,6 +768,7 @@ function KapaoUI:CreateWindow(options)
     })
     mainWindow.Name = "KapaoWindow"
     mainWindow.ClipsDescendants = true
+    mainWindow.ZIndex = 1
     createCorner(mainWindow, 0)
     
     -- Add corner decorations
@@ -767,46 +784,66 @@ function KapaoUI:CreateWindow(options)
     borderFrame.ZIndex = 10
     borderFrame.Parent = mainWindow
     
-    -- Primary border stroke (thicker, animated)
-    local borderStroke = createStroke(borderFrame, Theme.Accent, 2)
-    borderStroke.Transparency = 0.3
+    -- TRIPLE GLOW SYSTEM (สว่างจ้าแบบตัวอย่าง)
     
-    -- Secondary glow stroke (outer glow)
-    local glowStroke = Instance.new("UIStroke")
-    glowStroke.Color = Theme.Accent
-    glowStroke.Thickness = 4
-    glowStroke.Transparency = 0.7
-    glowStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    glowStroke.Parent = borderFrame
+    -- Layer 1: Inner border (sharp, bright)
+    local borderStroke = createStroke(borderFrame, Theme.Accent, 3)
+    borderStroke.Transparency = 0
     
-    -- Advanced breathing animation loop with color pulse
+    -- Layer 2: Mid glow (medium blur)
+    local midGlow = Instance.new("UIStroke")
+    midGlow.Color = Theme.Accent
+    midGlow.Thickness = 6
+    midGlow.Transparency = 0.3
+    midGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    midGlow.Parent = borderFrame
+    
+    -- Layer 3: Outer glow (soft, wide)
+    local outerGlow = Instance.new("UIStroke")
+    outerGlow.Color = Theme.AccentGlow
+    outerGlow.Thickness = 10
+    outerGlow.Transparency = 0.5
+    outerGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    outerGlow.Parent = borderFrame
+    
+    -- ADVANCED TRIPLE GLOW BREATHING ANIMATION
     task.spawn(function()
         while mainWindow.Parent do
-            -- Pulse out (expand + brighter)
+            -- Pulse OUT (expand + SUPER BRIGHT)
+            createTween(borderStroke, {
+                Thickness = 4,
+                Transparency = 0
+            }, 1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+            
+            createTween(midGlow, {
+                Thickness = 8,
+                Transparency = 0.1
+            }, 1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+            
+            createTween(outerGlow, {
+                Thickness = 14,
+                Transparency = 0.3
+            }, 1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+            
+            task.wait(1.5)
+            
+            -- Pulse IN (contract + dimmer)
             createTween(borderStroke, {
                 Thickness = 3,
-                Transparency = 0.1
-            }, 2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+                Transparency = 0
+            }, 1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
             
-            createTween(glowStroke, {
+            createTween(midGlow, {
                 Thickness = 6,
-                Transparency = 0.5
-            }, 2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-            
-            task.wait(2)
-            
-            -- Pulse in (contract + dimmer)
-            createTween(borderStroke, {
-                Thickness = 2,
                 Transparency = 0.3
-            }, 2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+            }, 1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
             
-            createTween(glowStroke, {
-                Thickness = 4,
-                Transparency = 0.7
-            }, 2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+            createTween(outerGlow, {
+                Thickness = 10,
+                Transparency = 0.5
+            }, 1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
             
-            task.wait(2)
+            task.wait(1.5)
         end
     end)
     
