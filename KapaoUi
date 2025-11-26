@@ -689,182 +689,27 @@ function KapaoUI:CreateWindow(options)
     createCorner(mainWindow, 0)
     
     -- ═══════════════════════════════════════════════════════════════════════════
-    -- ANIMATED GRADIENT BACKGROUND
+    -- SUBTLE GRADIENT BACKGROUND
     -- ═══════════════════════════════════════════════════════════════════════════
     
     local gradientBg = Instance.new("Frame")
-    gradientBg.BackgroundColor3 = Color3.fromRGB(10, 15, 25)
+    gradientBg.BackgroundColor3 = Color3.fromRGB(8, 12, 20)
     gradientBg.Size = UDim2.new(1, 0, 1, 0)
-    gradientBg.ZIndex = -2
+    gradientBg.ZIndex = 0
     gradientBg.BorderSizePixel = 0
     gradientBg.Parent = mainWindow
     
     local gradient = Instance.new("UIGradient")
     gradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(5, 10, 20)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(10, 20, 35)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 15, 25))
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(6, 10, 18)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(10, 15, 25)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(8, 12, 20))
     }
-    gradient.Rotation = 45
+    gradient.Rotation = 90
     gradient.Parent = gradientBg
     
-    -- Animate gradient rotation
-    task.spawn(function()
-        while gradientBg.Parent do
-            for i = 0, 360, 1 do
-                if not gradientBg.Parent then break end
-                gradient.Rotation = i
-                task.wait(0.05)
-            end
-        end
-    end)
-    
-    -- ═══════════════════════════════════════════════════════════════════════════
-    -- GRID PATTERN OVERLAY
-    -- ═══════════════════════════════════════════════════════════════════════════
-    
-    local gridPattern = Instance.new("Frame")
-    gridPattern.BackgroundTransparency = 0.95
-    gridPattern.BackgroundColor3 = Theme.Accent
-    gridPattern.Size = UDim2.new(1, 0, 1, 0)
-    gridPattern.ZIndex = -1
-    gridPattern.BorderSizePixel = 0
-    gridPattern.Parent = mainWindow
-    
-    -- Create grid lines
-    for i = 0, 10 do
-        -- Vertical lines
-        local vLine = Instance.new("Frame")
-        vLine.BackgroundColor3 = Theme.Accent
-        vLine.BackgroundTransparency = 0.92
-        vLine.Size = UDim2.new(0, 1, 1, 0)
-        vLine.Position = UDim2.new(i / 10, 0, 0, 0)
-        vLine.BorderSizePixel = 0
-        vLine.ZIndex = -1
-        vLine.Parent = gridPattern
-        
-        -- Horizontal lines
-        local hLine = Instance.new("Frame")
-        hLine.BackgroundColor3 = Theme.Accent
-        hLine.BackgroundTransparency = 0.92
-        hLine.Size = UDim2.new(1, 0, 0, 1)
-        hLine.Position = UDim2.new(0, 0, i / 10, 0)
-        hLine.BorderSizePixel = 0
-        hLine.ZIndex = -1
-        hLine.Parent = gridPattern
-    end
-    
-    -- ═══════════════════════════════════════════════════════════════════════════
-    -- CORNER DECORATIONS (SCI-FI L-SHAPES)
-    -- ═══════════════════════════════════════════════════════════════════════════
-    
-    local function createAdvancedCorner(parent, position, rotation)
-        local cornerGroup = Instance.new("Frame")
-        cornerGroup.BackgroundTransparency = 1
-        cornerGroup.Size = UDim2.new(0, 40, 0, 40)
-        cornerGroup.Position = position
-        cornerGroup.ZIndex = 5
-        cornerGroup.Parent = parent
-        
-        -- Main L-shape (horizontal)
-        local hBar = Instance.new("Frame")
-        hBar.BackgroundColor3 = Theme.Accent
-        hBar.Size = UDim2.new(0, 25, 0, 3)
-        hBar.BorderSizePixel = 0
-        hBar.Parent = cornerGroup
-        createStroke(hBar, Theme.Accent, 1)
-        
-        -- Main L-shape (vertical)
-        local vBar = Instance.new("Frame")
-        vBar.BackgroundColor3 = Theme.Accent
-        vBar.Size = UDim2.new(0, 3, 0, 25)
-        vBar.BorderSizePixel = 0
-        vBar.Parent = cornerGroup
-        createStroke(vBar, Theme.Accent, 1)
-        
-        -- Small decorative bars
-        for i = 1, 3 do
-            local smallBar = Instance.new("Frame")
-            smallBar.BackgroundColor3 = Theme.Accent
-            smallBar.Size = UDim2.new(0, 8, 0, 2)
-            smallBar.BorderSizePixel = 0
-            smallBar.BackgroundTransparency = 0.3
-            smallBar.Parent = cornerGroup
-        end
-        
-        -- Glow spot
-        local glowSpot = Instance.new("Frame")
-        glowSpot.BackgroundColor3 = Theme.Accent
-        glowSpot.Size = UDim2.new(0, 6, 0, 6)
-        glowSpot.Position = UDim2.new(0, -3, 0, -3)
-        glowSpot.BorderSizePixel = 0
-        glowSpot.ZIndex = 6
-        glowSpot.Parent = cornerGroup
-        createCorner(glowSpot, 3)
-        
-        -- Pulse animation for glow
-        task.spawn(function()
-            while glowSpot.Parent do
-                createTween(glowSpot, {BackgroundTransparency = 0}, 1, Enum.EasingStyle.Sine)
-                task.wait(1)
-                createTween(glowSpot, {BackgroundTransparency = 0.5}, 1, Enum.EasingStyle.Sine)
-                task.wait(1)
-            end
-        end)
-        
-        -- Rotate based on corner
-        cornerGroup.Rotation = rotation
-        
-        return cornerGroup
-    end
-    
-    -- Add corners to all 4 positions
-    createAdvancedCorner(mainWindow, UDim2.new(0, 5, 0, 5), 0) -- Top Left
-    createAdvancedCorner(mainWindow, UDim2.new(1, -45, 0, 5), 90) -- Top Right
-    createAdvancedCorner(mainWindow, UDim2.new(1, -45, 1, -45), 180) -- Bottom Right
-    createAdvancedCorner(mainWindow, UDim2.new(0, 5, 1, -45), 270) -- Bottom Left
-    
-    -- ═══════════════════════════════════════════════════════════════════════════
-    -- FLOATING PARTICLES (Optional - lightweight)
-    -- ═══════════════════════════════════════════════════════════════════════════
-    
-    local particleContainer = Instance.new("Frame")
-    particleContainer.BackgroundTransparency = 1
-    particleContainer.Size = UDim2.new(1, 0, 1, 0)
-    particleContainer.ZIndex = 1
-    particleContainer.ClipsDescendants = true
-    particleContainer.Parent = mainWindow
-    
-    -- Spawn particles
-    task.spawn(function()
-        for i = 1, 8 do
-            local particle = Instance.new("Frame")
-            particle.BackgroundColor3 = Theme.Accent
-            particle.BackgroundTransparency = 0.7
-            particle.Size = UDim2.new(0, 2, 0, 2)
-            particle.Position = UDim2.new(math.random(), 0, math.random(), 0)
-            particle.BorderSizePixel = 0
-            particle.ZIndex = 1
-            particle.Parent = particleContainer
-            createCorner(particle, 1)
-            
-            -- Animate particle
-            task.spawn(function()
-                while particle.Parent do
-                    local randomX = math.random()
-                    local randomY = math.random()
-                    createTween(particle, {
-                        Position = UDim2.new(randomX, 0, randomY, 0),
-                        BackgroundTransparency = math.random(50, 90) / 100
-                    }, math.random(5, 10), Enum.EasingStyle.Linear)
-                    task.wait(math.random(5, 10))
-                end
-            end)
-        end
-    end)
-    
-    -- Add corner decorations (old function kept for compatibility)
-    createCornerDecorations(mainWindow)
+    -- Corner decorations disabled for cleaner look
+    -- createCornerDecorations(mainWindow)
     
     -- ═══════════════════════════════════════════════════════════════════════════
     -- ANIMATED BORDER (Breathing Glow Effect)
