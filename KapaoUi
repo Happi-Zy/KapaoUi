@@ -654,6 +654,17 @@ function KapaoUI:CreateWindow(options)
     local scriptName = options.ScriptName or "Default"
     local version = options.Version or "v1.0.0"
     
+    -- ═══════════════════════════════════════════════════════════════════════════
+    -- FIX: Unlock mouse
+    -- ═══════════════════════════════════════════════════════════════════════════
+    
+    UserInputService.MouseIconEnabled = true
+    UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+    
+    pcall(function()
+        game:GetService("StarterGui"):SetCore("ResetButtonCallback", true)
+    end)
+    
     -- Create config manager
     local config = ConfigManager.new(scriptName)
     
@@ -991,7 +1002,7 @@ function KapaoUI:CreateWindow(options)
         tabFrame.BorderSizePixel = 0
         tabFrame.ScrollBarThickness = 4
         tabFrame.ScrollBarImageColor3 = Theme.Accent
-        tabFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+        tabFrame.CanvasSize = UDim2.new(0, 0, 2, 0) -- FIX: Set larger canvas size
         tabFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
         tabFrame.Parent = tabContainer
         
@@ -999,6 +1010,11 @@ function KapaoUI:CreateWindow(options)
         tabFrameLayout.SortOrder = Enum.SortOrder.LayoutOrder
         tabFrameLayout.Padding = UDim.new(0, 10)
         tabFrameLayout.Parent = tabFrame
+        
+        -- FIX: Update canvas size when layout changes
+        tabFrameLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            tabFrame.CanvasSize = UDim2.new(0, 0, 0, tabFrameLayout.AbsoluteContentSize.Y + 20)
+        end)
         
         -- ═══════════════════════════════════════════════════════════════════════
         -- TAB OBJECT
