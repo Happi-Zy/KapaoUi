@@ -1612,25 +1612,24 @@ function KapaoUI:CreateWindow(options)
             sliderLabel.Position = UDim2.new(0, 0, 0, 2)
             sliderLabel.Size = UDim2.new(0.7, 0, 0, 18)
             
-            -- Value label background for visibility
-            local valueBg = createFrame({
-                BackgroundColor = Theme.ElementBackground,
-                Size = UDim2.new(0, 50, 0, 20),
-                Position = UDim2.new(1, -55, 0, 1),
-                Parent = sliderFrame,
-            })
-            valueBg.ZIndex = 3
-            createCorner(valueBg, 6)
-            createStroke(valueBg, Theme.ElementBorder, 1)
+            -- Value input box (editable)
+            local valueInput = Instance.new("TextBox")
+            valueInput.BackgroundColor3 = Theme.ElementBackground
+            valueInput.Size = UDim2.new(0, 50, 0, 20)
+            valueInput.Position = UDim2.new(1, -55, 0, 1)
+            valueInput.Font = Enum.Font.Gotham
+            valueInput.TextSize = 13
+            valueInput.TextColor3 = Theme.Accent
+            valueInput.Text = tostring(default)
+            valueInput.TextXAlignment = Enum.TextXAlignment.Center
+            valueInput.PlaceholderText = ""
+            valueInput.ClearTextOnFocus = false
+            valueInput.BorderSizePixel = 0
+            valueInput.ZIndex = 4
+            valueInput.Parent = sliderFrame
+            createCorner(valueInput, 6)
             
-            -- Value label (on top of background)
-            local valueLabel = createTextLabel(valueBg, tostring(default), 13)
-            valueLabel.Position = UDim2.new(0, 0, 0, 0)
-            valueLabel.Size = UDim2.new(1, 0, 1, 0)
-            valueLabel.TextXAlignment = Enum.TextXAlignment.Center
-            valueLabel.TextColor3 = Theme.Accent
-            valueLabel.ZIndex = 4
-            valueLabel.BackgroundTransparency = 1
+            local inputStroke = createStroke(valueInput, Theme.ElementBorder, 1)
             
             -- Slider background (leave space for value label)
             local sliderBg = createFrame({
@@ -1696,12 +1695,16 @@ function KapaoUI:CreateWindow(options)
                 local xOffset = 8 - (percent * 16)
                 sliderKnob.Position = UDim2.new(percent, xOffset, 0.5, -8)
                 
-                -- Format value text: remove trailing zeros for decimals
-                local valueText = tostring(value)
-                if string.find(valueText, "%.") then
-                    valueText = valueText:gsub("%.?0+$", "")
+                -- Format value text: show clean decimals
+                local valueText
+                if value % 1 == 0 then
+                    -- Integer value
+                    valueText = string.format("%d", value)
+                else
+                    -- Decimal value - show up to 2 decimal places, remove trailing zeros
+                    valueText = string.format("%.10f", value):gsub("%.?0+$", "")
                 end
-                valueLabel.Text = valueText
+                valueInput.Text = valueText
             end
             
             updateVisual()
@@ -1713,6 +1716,27 @@ function KapaoUI:CreateWindow(options)
                 config:Set(key, value)
                 pcall(callback, value)
             end
+            
+            -- Value input events
+            valueInput.Focused:Connect(function()
+                inputStroke.Color = Theme.Accent
+                inputStroke.Thickness = 2
+            end)
+            
+            valueInput.FocusLost:Connect(function(enterPressed)
+                inputStroke.Color = Theme.ElementBorder
+                inputStroke.Thickness = 1
+                
+                if enterPressed then
+                    local inputValue = tonumber(valueInput.Text)
+                    if inputValue then
+                        setValue(inputValue)
+                    else
+                        -- Invalid input, reset to current value
+                        updateVisual()
+                    end
+                end
+            end)
             
             local dragging = false
             
