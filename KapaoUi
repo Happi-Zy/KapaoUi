@@ -948,9 +948,101 @@ function KapaoUI:CreateWindow(options)
     end)
     
     closeButton.MouseButton1Click:Connect(function()
-        createTween(mainWindow, {Size = UDim2.new(0, 0, 0, 0)}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In).Completed:Connect(function()
-            rootGui:Destroy()
+        -- Create confirmation dialog
+        local confirmFrame = Instance.new("Frame")
+        confirmFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        confirmFrame.BackgroundTransparency = 0.5
+        confirmFrame.Size = UDim2.new(1, 0, 1, 0)
+        confirmFrame.Position = UDim2.new(0, 0, 0, 0)
+        confirmFrame.ZIndex = 1000
+        confirmFrame.Parent = rootGui
+        
+        local dialogBox = createFrame({
+            BackgroundColor = Theme.WindowBackground,
+            Size = UDim2.new(0, 340, 0, 160),
+            Position = UDim2.new(0.5, -170, 0.5, -80),
+            Parent = confirmFrame,
+        })
+        dialogBox.ZIndex = 1001
+        createCorner(dialogBox, 12)
+        createStroke(dialogBox, Theme.Accent, 2)
+        
+        -- Title
+        local titleLabel = createTextLabel(dialogBox, "Close UI", 16)
+        titleLabel.Position = UDim2.new(0, 20, 0, 15)
+        titleLabel.Size = UDim2.new(1, -40, 0, 25)
+        titleLabel.Font = Enum.Font.GothamBold
+        titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+        titleLabel.ZIndex = 1002
+        
+        -- Message
+        local messageLabel = createTextLabel(dialogBox, "Are you sure you want to close this UI?\nThis action cannot be undone.", 13)
+        messageLabel.Position = UDim2.new(0, 20, 0, 50)
+        messageLabel.Size = UDim2.new(1, -40, 0, 50)
+        messageLabel.TextXAlignment = Enum.TextXAlignment.Left
+        messageLabel.TextYAlignment = Enum.TextYAlignment.Top
+        messageLabel.TextWrapped = true
+        messageLabel.ZIndex = 1002
+        
+        -- Cancel button
+        local cancelBtn = Instance.new("TextButton")
+        cancelBtn.BackgroundColor3 = Theme.ElementBackground
+        cancelBtn.Size = UDim2.new(0, 140, 0, 35)
+        cancelBtn.Position = UDim2.new(0, 20, 1, -50)
+        cancelBtn.Text = "Cancel"
+        cancelBtn.Font = Enum.Font.GothamBold
+        cancelBtn.TextSize = 14
+        cancelBtn.TextColor3 = Theme.TextPrimary
+        cancelBtn.BorderSizePixel = 0
+        cancelBtn.ZIndex = 1002
+        cancelBtn.Parent = dialogBox
+        createCorner(cancelBtn, 8)
+        createStroke(cancelBtn, Theme.ElementBorder, 1)
+        
+        cancelBtn.MouseButton1Click:Connect(function()
+            confirmFrame:Destroy()
         end)
+        
+        cancelBtn.MouseEnter:Connect(function()
+            createTween(cancelBtn, {BackgroundColor3 = Theme.ElementBackgroundHover}, 0.2)
+        end)
+        
+        cancelBtn.MouseLeave:Connect(function()
+            createTween(cancelBtn, {BackgroundColor3 = Theme.ElementBackground}, 0.2)
+        end)
+        
+        -- OK button
+        local okBtn = Instance.new("TextButton")
+        okBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 60)
+        okBtn.Size = UDim2.new(0, 140, 0, 35)
+        okBtn.Position = UDim2.new(1, -160, 1, -50)
+        okBtn.Text = "Close UI"
+        okBtn.Font = Enum.Font.GothamBold
+        okBtn.TextSize = 14
+        okBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        okBtn.BorderSizePixel = 0
+        okBtn.ZIndex = 1002
+        okBtn.Parent = dialogBox
+        createCorner(okBtn, 8)
+        
+        okBtn.MouseButton1Click:Connect(function()
+            confirmFrame:Destroy()
+            createTween(mainWindow, {Size = UDim2.new(0, 0, 0, 0)}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In).Completed:Connect(function()
+                rootGui:Destroy()
+            end)
+        end)
+        
+        okBtn.MouseEnter:Connect(function()
+            createTween(okBtn, {BackgroundColor3 = Color3.fromRGB(220, 60, 80)}, 0.2)
+        end)
+        
+        okBtn.MouseLeave:Connect(function()
+            createTween(okBtn, {BackgroundColor3 = Color3.fromRGB(180, 40, 60)}, 0.2)
+        end)
+        
+        -- Animate dialog
+        dialogBox.Size = UDim2.new(0, 0, 0, 0)
+        createTween(dialogBox, {Size = UDim2.new(0, 340, 0, 160)}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
     end)
     
     -- ═══════════════════════════════════════════════════════════════════════════
