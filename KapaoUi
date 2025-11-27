@@ -1619,11 +1619,11 @@ function KapaoUI:CreateWindow(options)
             valueLabel.TextXAlignment = Enum.TextXAlignment.Right
             valueLabel.TextColor3 = Theme.Accent
             
-            -- Slider background
+            -- Slider background (with margin for knob)
             local sliderBg = createFrame({
                 BackgroundColor = Theme.ElementBackground,
-                Size = UDim2.new(1, -10, 0, 10),
-                Position = UDim2.new(0, 5, 0, 28),
+                Size = UDim2.new(1, -26, 0, 10),
+                Position = UDim2.new(0, 13, 0, 28),
                 Parent = sliderFrame,
             })
             createCorner(sliderBg, 5)
@@ -1645,15 +1645,15 @@ function KapaoUI:CreateWindow(options)
             fillGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
             fillGlow.Parent = sliderFill
             
-            -- Slider knob (white with accent border - properly sized)
+            -- Slider knob (white with accent border - compact size)
             local sliderKnob = createFrame({
                 BackgroundColor = Color3.fromRGB(255, 255, 255),
-                Size = UDim2.new(0, 18, 0, 18),
-                Position = UDim2.new(0, 0, 0.5, -9),
+                Size = UDim2.new(0, 16, 0, 16),
+                Position = UDim2.new(0, 0, 0.5, -8),
                 Parent = sliderBg,
             })
             sliderKnob.ZIndex = 2
-            createCorner(sliderKnob, 9)
+            createCorner(sliderKnob, 8)
             
             -- Main border (accent color)
             local knobBorder = Instance.new("UIStroke")
@@ -1676,7 +1676,12 @@ function KapaoUI:CreateWindow(options)
             local function updateVisual()
                 local percent = (value - min) / (max - min)
                 sliderFill.Size = UDim2.new(percent, 0, 1, 0)
-                sliderKnob.Position = UDim2.new(percent, -9, 0.5, -9)
+                
+                -- Calculate knob position to keep it within bounds
+                -- When percent = 0: xOffset = 8 (knob stays 8px from left edge)
+                -- When percent = 1: xOffset = -8 (knob stays 8px from right edge)
+                local xOffset = 8 - (percent * 16)
+                sliderKnob.Position = UDim2.new(percent, xOffset, 0.5, -8)
                 valueLabel.Text = tostring(value)
             end
             
