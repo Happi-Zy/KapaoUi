@@ -1959,17 +1959,25 @@ function KapaoUI:CreateWindow(options)
             arrow.TextXAlignment = Enum.TextXAlignment.Center
             arrow.TextColor3 = Theme.Accent
             
-            -- Options list
+            -- Options list (parent to tabContainer to avoid clipping)
             local optionsList_Frame = createFrame({
                 BackgroundColor = Theme.ElementBackground,
-                Size = UDim2.new(1, 0, 0, 0),
-                Position = UDim2.new(0, 0, 0, 60),
-                Parent = dropdownFrame,
+                Size = UDim2.new(0, dropdownButton.AbsoluteSize.X, 0, 0),
+                Position = UDim2.new(0, dropdownButton.AbsolutePosition.X - tabContainer.AbsolutePosition.X, 0, dropdownButton.AbsolutePosition.Y - tabContainer.AbsolutePosition.Y + 36),
+                Parent = tabContainer,
             })
             optionsList_Frame.Visible = false
-            optionsList_Frame.ZIndex = 100
+            optionsList_Frame.ZIndex = 500
             createCorner(optionsList_Frame, 8)
             createStroke(optionsList_Frame, Theme.Accent, 1)
+            
+            -- Update position when button moves
+            dropdownButton:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
+                if optionsList_Frame.Visible then
+                    optionsList_Frame.Position = UDim2.new(0, dropdownButton.AbsolutePosition.X - tabContainer.AbsolutePosition.X, 0, dropdownButton.AbsolutePosition.Y - tabContainer.AbsolutePosition.Y + 36)
+                    optionsList_Frame.Size = UDim2.new(0, dropdownButton.AbsoluteSize.X, 0, optionsList_Frame.AbsoluteSize.Y)
+                end
+            end)
             
             local optionsLayout = Instance.new("UIListLayout")
             optionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -1986,16 +1994,18 @@ function KapaoUI:CreateWindow(options)
             local selected = default
             local isOpen = false
             
-            -- Toggle dropdown
+            -- Toggle dropdown (Dropdown)
             local function toggleDropdown()
                 isOpen = not isOpen
                 optionsList_Frame.Visible = isOpen
                 
                 if isOpen then
-                    createTween(optionsList_Frame, {Size = UDim2.new(1, 0, 0, #optionsList * 26 + 8)}, 0.25)
+                    -- Update position and size
+                    optionsList_Frame.Position = UDim2.new(0, dropdownButton.AbsolutePosition.X - tabContainer.AbsolutePosition.X, 0, dropdownButton.AbsolutePosition.Y - tabContainer.AbsolutePosition.Y + 36)
+                    createTween(optionsList_Frame, {Size = UDim2.new(0, dropdownButton.AbsoluteSize.X, 0, #optionsList * 26 + 8)}, 0.25)
                     createTween(arrow, {Rotation = 180}, 0.25)
                 else
-                    createTween(optionsList_Frame, {Size = UDim2.new(1, 0, 0, 0)}, 0.25).Completed:Connect(function()
+                    createTween(optionsList_Frame, {Size = UDim2.new(0, dropdownButton.AbsoluteSize.X, 0, 0)}, 0.25).Completed:Connect(function()
                         if not isOpen then
                             optionsList_Frame.Visible = false
                         end
@@ -2131,17 +2141,25 @@ function KapaoUI:CreateWindow(options)
             arrow.TextXAlignment = Enum.TextXAlignment.Center
             arrow.TextColor3 = Theme.Accent
             
-            -- Options list
+            -- Options list (parent to tabContainer to avoid clipping)
             local optionsList_Frame = createFrame({
                 BackgroundColor = Theme.ElementBackground,
-                Size = UDim2.new(1, 0, 0, 0),
-                Position = UDim2.new(0, 0, 0, 60),
-                Parent = multiDropFrame,
+                Size = UDim2.new(0, multiDropButton.AbsoluteSize.X, 0, 0),
+                Position = UDim2.new(0, multiDropButton.AbsolutePosition.X - tabContainer.AbsolutePosition.X, 0, multiDropButton.AbsolutePosition.Y - tabContainer.AbsolutePosition.Y + 36),
+                Parent = tabContainer,
             })
             optionsList_Frame.Visible = false
-            optionsList_Frame.ZIndex = 100
+            optionsList_Frame.ZIndex = 500
             createCorner(optionsList_Frame, 8)
             createStroke(optionsList_Frame, Theme.Accent, 1)
+            
+            -- Update position when button moves
+            multiDropButton:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
+                if optionsList_Frame.Visible then
+                    optionsList_Frame.Position = UDim2.new(0, multiDropButton.AbsolutePosition.X - tabContainer.AbsolutePosition.X, 0, multiDropButton.AbsolutePosition.Y - tabContainer.AbsolutePosition.Y + 36)
+                    optionsList_Frame.Size = UDim2.new(0, multiDropButton.AbsoluteSize.X, 0, optionsList_Frame.AbsoluteSize.Y)
+                end
+            end)
             
             local optionsLayout = Instance.new("UIListLayout")
             optionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -2176,16 +2194,18 @@ function KapaoUI:CreateWindow(options)
                 pcall(callback, selectedList)
             end
             
-            -- Toggle dropdown
+            -- Toggle dropdown (MultiDropdown)
             local function toggleDropdown()
                 isOpen = not isOpen
                 optionsList_Frame.Visible = isOpen
                 
                 if isOpen then
-                    createTween(optionsList_Frame, {Size = UDim2.new(1, 0, 0, #optionsList * 26 + 8)}, 0.25)
+                    -- Update position and size
+                    optionsList_Frame.Position = UDim2.new(0, multiDropButton.AbsolutePosition.X - tabContainer.AbsolutePosition.X, 0, multiDropButton.AbsolutePosition.Y - tabContainer.AbsolutePosition.Y + 36)
+                    createTween(optionsList_Frame, {Size = UDim2.new(0, multiDropButton.AbsoluteSize.X, 0, #optionsList * 26 + 8)}, 0.25)
                     createTween(arrow, {Rotation = 180}, 0.25)
                 else
-                    createTween(optionsList_Frame, {Size = UDim2.new(1, 0, 0, 0)}, 0.25).Completed:Connect(function()
+                    createTween(optionsList_Frame, {Size = UDim2.new(0, multiDropButton.AbsoluteSize.X, 0, 0)}, 0.25).Completed:Connect(function()
                         if not isOpen then
                             optionsList_Frame.Visible = false
                         end
