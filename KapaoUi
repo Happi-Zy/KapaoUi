@@ -1647,15 +1647,29 @@ function KapaoUI:CreateWindow(options)
             
             -- Slider knob
             local sliderKnob = createFrame({
-                BackgroundColor = Color3.fromRGB(255, 255, 255),
-                Size = UDim2.new(0, 18, 0, 18),
-                Position = UDim2.new(0, 0, 0.5, -9),
+                BackgroundColor = Theme.Accent,
+                Size = UDim2.new(0, 20, 0, 20),
+                Position = UDim2.new(0, 0, 0.5, -10),
                 Parent = sliderBg,
             })
-            createCorner(sliderKnob, 9)
-            createStroke(sliderKnob, Theme.Accent, 2)
+            createCorner(sliderKnob, 10)
             
-            -- Knob glow
+            -- Knob border (white for contrast)
+            local knobBorder = Instance.new("UIStroke")
+            knobBorder.Color = Color3.fromRGB(255, 255, 255)
+            knobBorder.Thickness = 2
+            knobBorder.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            knobBorder.Parent = sliderKnob
+            
+            -- Knob shadow
+            local knobShadow = Instance.new("UIStroke")
+            knobShadow.Color = Color3.fromRGB(0, 0, 0)
+            knobShadow.Thickness = 3
+            knobShadow.Transparency = 0.7
+            knobShadow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            knobShadow.Parent = sliderKnob
+            
+            -- Knob glow (for animation)
             local knobGlow = Instance.new("UIStroke")
             knobGlow.Color = Theme.Accent
             knobGlow.Thickness = 0
@@ -1669,7 +1683,7 @@ function KapaoUI:CreateWindow(options)
             local function updateVisual()
                 local percent = (value - min) / (max - min)
                 sliderFill.Size = UDim2.new(percent, 0, 1, 0)
-                sliderKnob.Position = UDim2.new(percent, -8, 0.5, -8)
+                sliderKnob.Position = UDim2.new(percent, -10, 0.5, -10)
                 valueLabel.Text = tostring(value)
             end
             
