@@ -1,0 +1,2355 @@
+--[[
+    ═══════════════════════════════════════════════════════════════════════════════
+    KAPAO HUB UI LIBRARY - COMPLETE EDITION
+    ═══════════════════════════════════════════════════════════════════════════════
+    
+    Theme: Manhwa Skill Window Style
+    Version: 2.0.0
+    Author: Kapao Team
+    
+    Description:
+        A complete UI library with 14 components for Roblox script development.
+        Features auto-save/load configuration, smooth animations, notification system,
+        and beautiful Manhwa-inspired design with cyan glow effects.
+    
+    Features:
+        ✓ 14 UI Components (Section, Divider, Label, Paragraph, Button, Toggle, 
+          Slider, Dropdown, MultiDropdown, TextBox, StatusLabel, ProgressBar, 
+          Keybind, Notification)
+        ✓ Auto-save/load configuration per script
+        ✓ Smooth TweenService animations
+        ✓ Notification system with toast messages
+        ✓ FPS & Ping status bar
+        ✓ Corner decorations (Manhwa L-shapes)
+        ✓ Minimize/Maximize window
+        ✓ Draggable UI
+        ✓ Multi-executor support (Synapse X, Solara, Script-Ware, etc.)
+        ✓ Graceful fallback for executors without file I/O
+    
+    Config Files:
+        - Stored in: KapaoHub/Configs/Kapao_<ScriptName>.json
+        - Auto-created folder structure
+        - JSON format for easy editing
+    
+    ═══════════════════════════════════════════════════════════════════════════════
+]]
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- MAIN MODULE TABLE
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+local KapaoUI = {}
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- SERVICES
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- CONFIGURATION
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+local CONFIG_FOLDER = "KapaoHub/Configs"
+
+-- Check if executor supports file operations
+local canSaveConfig = typeof(writefile) == "function" 
+    and typeof(readfile) == "function" 
+    and typeof(isfolder) == "function" 
+    and typeof(makefolder) == "function"
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- THEME COLORS (Manhwa Skill Window Style)
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+local Theme = {
+    -- Background Colors
+    Background = Color3.fromRGB(8, 12, 20),
+    WindowBackground = Color3.fromRGB(10, 15, 25),
+    TopBar = Color3.fromRGB(12, 18, 30),
+    
+    -- Accent Colors (Cyan Glow)
+    Accent = Color3.fromRGB(0, 200, 255),
+    AccentGlow = Color3.fromRGB(0, 150, 220),
+    AccentDark = Color3.fromRGB(0, 160, 200),
+    
+    -- Element Colors
+    ElementBackground = Color3.fromRGB(15, 22, 35),
+    ElementBackgroundHover = Color3.fromRGB(20, 30, 48),
+    ElementBorder = Color3.fromRGB(0, 180, 240),
+    
+    -- Text Colors
+    TextPrimary = Color3.fromRGB(230, 245, 255),
+    TextSecondary = Color3.fromRGB(160, 190, 220),
+    TextAccent = Color3.fromRGB(0, 200, 255),
+    TextDark = Color3.fromRGB(100, 120, 150),
+    
+    -- Status Colors
+    Success = Color3.fromRGB(0, 255, 100),
+    Warning = Color3.fromRGB(255, 200, 0),
+    Error = Color3.fromRGB(255, 60, 80),
+}
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- UTILITY FUNCTIONS
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+--[[
+    Create a tween animation
+    
+    Parameters:
+        instance: The GUI instance to animate
+        properties: Table of properties to animate
+        duration: Animation duration in seconds (default: 0.3)
+        easingStyle: Easing style enum (default: Quad)
+        easingDirection: Easing direction enum (default: Out)
+    
+    Returns:
+        Tween object
+]]
+local function createTween(instance, properties, duration, easingStyle, easingDirection)
+    duration = duration or 0.3
+    easingStyle = easingStyle or Enum.EasingStyle.Quad
+    easingDirection = easingDirection or Enum.EasingDirection.Out
+    
+    local tweenInfo = TweenInfo.new(duration, easingStyle, easingDirection)
+    local tween = TweenService:Create(instance, tweenInfo, properties)
+    tween:Play()
+    
+    return tween
+end
+
+--[[
+    Make a frame draggable
+    
+    Parameters:
+        frame: The frame to make draggable
+        dragHandle: Optional handle to drag from (defaults to frame itself)
+]]
+local function makeDraggable(frame, dragHandle)
+    dragHandle = dragHandle or frame
+    
+    local dragging = false
+    local dragStart = nil
+    local startPos = nil
+    
+    dragHandle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or 
+           input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    
+    dragHandle.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or 
+           input.UserInputType == Enum.UserInputType.Touch then
+            if dragging then
+                local delta = input.Position - dragStart
+                frame.Position = UDim2.new(
+                    startPos.X.Scale,
+                    startPos.X.Offset + delta.X,
+                    startPos.Y.Scale,
+                    startPos.Y.Offset + delta.Y
+                )
+            end
+        end
+    end)
+end
+
+--[[
+    Get GUI parent (CoreGui or PlayerGui with fallbacks)
+    
+    Returns:
+        ScreenGui instance
+]]
+local function getGuiParent()
+    -- Try Synapse X protection first
+    local success1, result1 = pcall(function()
+        if syn and syn.protect_gui then
+            local screenGui = Instance.new("ScreenGui")
+            screenGui.Name = "KapaoHubUI"
+            screenGui.ResetOnSpawn = false
+            screenGui.IgnoreGuiInset = true
+            syn.protect_gui(screenGui)
+            screenGui.Parent = game:GetService("CoreGui")
+            return screenGui
+        end
+        return nil
+    end)
+    
+    if success1 and result1 then
+        return result1
+    end
+    
+    -- Try CoreGui
+    local success2, coreGui = pcall(function()
+        return game:GetService("CoreGui")
+    end)
+    
+    if success2 and coreGui then
+        -- Remove existing UI if present
+        local existing = coreGui:FindFirstChild("KapaoHubUI")
+        if existing then
+            existing:Destroy()
+        end
+        
+        local screenGui = Instance.new("ScreenGui")
+        screenGui.Name = "KapaoHubUI"
+        screenGui.ResetOnSpawn = false
+        screenGui.IgnoreGuiInset = true
+        screenGui.Parent = coreGui
+        return screenGui
+    end
+    
+    -- Fallback to PlayerGui
+    local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+    local existing = playerGui:FindFirstChild("KapaoHubUI")
+    if existing then
+        existing:Destroy()
+    end
+    
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "KapaoHubUI"
+    screenGui.ResetOnSpawn = false
+    screenGui.IgnoreGuiInset = true
+    screenGui.Parent = playerGui
+    return screenGui
+end
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- UI ELEMENT CREATION HELPERS
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+--[[
+    Create a basic frame with properties
+    
+    Parameters:
+        properties: Table with optional keys:
+            - BackgroundColor: Color3
+            - Size: UDim2
+            - Position: UDim2
+            - Parent: Instance
+    
+    Returns:
+        Frame instance
+]]
+local function createFrame(properties)
+    local frame = Instance.new("Frame")
+    frame.BackgroundColor3 = properties.BackgroundColor or Theme.ElementBackground
+    frame.BorderSizePixel = 0
+    frame.Size = properties.Size or UDim2.new(1, 0, 1, 0)
+    frame.Position = properties.Position or UDim2.new(0, 0, 0, 0)
+    
+    if properties.Parent then
+        frame.Parent = properties.Parent
+    end
+    
+    return frame
+end
+
+--[[
+    Create a UICorner for rounded corners
+    
+    Parameters:
+        parent: Parent instance
+        radius: Corner radius in pixels (default: 8)
+    
+    Returns:
+        UICorner instance
+]]
+local function createCorner(parent, radius)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, radius or 8)
+    corner.Parent = parent
+    return corner
+end
+
+--[[
+    Create a UIStroke for borders
+    
+    Parameters:
+        parent: Parent instance
+        color: Border color (default: Theme.ElementBorder)
+        thickness: Border thickness (default: 1)
+    
+    Returns:
+        UIStroke instance
+]]
+local function createStroke(parent, color, thickness)
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = color or Theme.ElementBorder
+    stroke.Thickness = thickness or 1
+    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    stroke.Parent = parent
+    return stroke
+end
+
+--[[
+    Create a text label
+    
+    Parameters:
+        parent: Parent instance
+        text: Label text
+        textSize: Text size (default: 14)
+    
+    Returns:
+        TextLabel instance
+]]
+local function createTextLabel(parent, text, textSize)
+    local label = Instance.new("TextLabel")
+    label.BackgroundTransparency = 1
+    label.Text = text or ""
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = textSize or 14
+    label.TextColor3 = Theme.TextPrimary
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.TextYAlignment = Enum.TextYAlignment.Center
+    label.RichText = true
+    label.Parent = parent
+    return label
+end
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- CORNER DECORATIONS (Manhwa Style L-shapes)
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+--[[
+    Create corner decorations (L-shaped lines at all 4 corners)
+    
+    Parameters:
+        parent: Parent instance to add decorations to
+]]
+local function createCornerDecorations(parent)
+    local positions = {
+        {UDim2.new(0, 8, 0, 8), 0},           -- Top Left
+        {UDim2.new(1, -28, 0, 8), 90},        -- Top Right
+        {UDim2.new(0, 8, 1, -28), -90},       -- Bottom Left
+        {UDim2.new(1, -28, 1, -28), 180}      -- Bottom Right
+    }
+    
+    for _, posData in ipairs(positions) do
+        local cornerFrame = Instance.new("Frame")
+        cornerFrame.BackgroundTransparency = 1
+        cornerFrame.Size = UDim2.new(0, 20, 0, 20)
+        cornerFrame.Position = posData[1]
+        cornerFrame.Rotation = posData[2]
+        cornerFrame.ZIndex = 10
+        cornerFrame.Parent = parent
+        
+        -- Vertical line
+        local line1 = Instance.new("Frame")
+        line1.BackgroundColor3 = Theme.Accent
+        line1.BorderSizePixel = 0
+        line1.Size = UDim2.new(0, 2, 1, 0)
+        line1.Position = UDim2.new(0, 0, 0, 0)
+        line1.Parent = cornerFrame
+        
+        -- Horizontal line
+        local line2 = Instance.new("Frame")
+        line2.BackgroundColor3 = Theme.Accent
+        line2.BorderSizePixel = 0
+        line2.Size = UDim2.new(1, 0, 0, 2)
+        line2.Position = UDim2.new(0, 0, 0, 0)
+        line2.Parent = cornerFrame
+    end
+end
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- CONFIG MANAGER SYSTEM
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+--[[
+    ConfigManager Class
+    
+    Handles saving and loading configuration data to/from JSON files.
+    Automatically creates folder structure and handles errors gracefully.
+]]
+local ConfigManager = {}
+ConfigManager.__index = ConfigManager
+
+--[[
+    Create a new ConfigManager instance
+    
+    Parameters:
+        scriptName: Name of the script (used for config filename)
+    
+    Returns:
+        ConfigManager instance
+]]
+function ConfigManager.new(scriptName)
+    local self = setmetatable({}, ConfigManager)
+    
+    self.ScriptName = scriptName
+    self.ConfigPath = CONFIG_FOLDER .. "/Kapao_" .. scriptName .. ".json"
+    self.Data = {}
+    
+    if canSaveConfig then
+        self:EnsureFolderExists()
+        self:Load()
+    end
+    
+    return self
+end
+
+--[[
+    Ensure the config folder exists
+]]
+function ConfigManager:EnsureFolderExists()
+    if not isfolder(CONFIG_FOLDER) then
+        makefolder(CONFIG_FOLDER)
+    end
+end
+
+--[[
+    Load configuration from file
+]]
+function ConfigManager:Load()
+    if not canSaveConfig then
+        return
+    end
+    
+    local success, result = pcall(function()
+        if isfile(self.ConfigPath) then
+            local content = readfile(self.ConfigPath)
+            return HttpService:JSONDecode(content)
+        end
+        return {}
+    end)
+    
+    if success and result then
+        self.Data = result
+    end
+end
+
+--[[
+    Save configuration to file
+]]
+function ConfigManager:Save()
+    if not canSaveConfig then
+        return
+    end
+    
+    pcall(function()
+        local encoded = HttpService:JSONEncode(self.Data)
+        writefile(self.ConfigPath, encoded)
+    end)
+end
+
+--[[
+    Get a value from config
+    
+    Parameters:
+        key: Config key
+        default: Default value if key doesn't exist
+    
+    Returns:
+        Config value or default
+]]
+function ConfigManager:Get(key, default)
+    if self.Data[key] ~= nil then
+        return self.Data[key]
+    end
+    return default
+end
+
+--[[
+    Set a value in config and save
+    
+    Parameters:
+        key: Config key
+        value: Value to set
+]]
+function ConfigManager:Set(key, value)
+    self.Data[key] = value
+    self:Save()
+end
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- NOTIFICATION SYSTEM
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+--[[
+    NotificationSystem Class
+    
+    Handles toast-style notifications in the top-right corner of the screen.
+    Supports different notification types with appropriate colors.
+]]
+local NotificationSystem = {}
+NotificationSystem.__index = NotificationSystem
+
+--[[
+    Create a new NotificationSystem instance
+    
+    Parameters:
+        rootGui: Root ScreenGui to add notifications to
+    
+    Returns:
+        NotificationSystem instance
+]]
+function NotificationSystem:Create(rootGui)
+    local self = setmetatable({}, NotificationSystem)
+    
+    -- Container for notifications (top-right corner)
+    local container = Instance.new("Frame")
+    container.Name = "NotificationContainer"
+    container.BackgroundTransparency = 1
+    container.Size = UDim2.new(0, 300, 1, 0)
+    container.Position = UDim2.new(1, -310, 0, 10)
+    container.ZIndex = 1000
+    container.Parent = rootGui
+    
+    -- List layout for stacking notifications
+    local listLayout = Instance.new("UIListLayout")
+    listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    listLayout.Padding = UDim.new(0, 10)
+    listLayout.Parent = container
+    
+    self.Container = container
+    
+    return self
+end
+
+--[[
+    Show a notification
+    
+    Parameters:
+        options: Table with keys:
+            - Title: Notification title (string)
+            - Description: Notification description (string)
+            - Duration: Display duration in seconds (number, default: 3)
+            - Type: Notification type ("Info", "Success", "Warning", "Error")
+]]
+function NotificationSystem:Notify(options)
+    local title = options.Title or "Notification"
+    local description = options.Description or ""
+    local duration = options.Duration or 3
+    local notifType = options.Type or "Info"  -- Info, Success, Warning, Error
+    
+    -- Create notification frame
+    local notifFrame = createFrame({
+        BackgroundColor = Theme.ElementBackground,
+        Size = UDim2.new(1, 0, 0, 0),
+        Parent = self.Container,
+    })
+    
+    createCorner(notifFrame, 8)
+    createStroke(notifFrame, Theme.ElementBorder, 1)
+    
+    -- Padding
+    local padding = Instance.new("UIPadding")
+    padding.PaddingTop = UDim.new(0, 10)
+    padding.PaddingBottom = UDim.new(0, 10)
+    padding.PaddingLeft = UDim.new(0, 12)
+    padding.PaddingRight = UDim.new(0, 12)
+    padding.Parent = notifFrame
+    
+    -- Determine accent color based on type
+    local accentColor = Theme.Accent
+    if notifType == "Success" then
+        accentColor = Theme.Success
+    elseif notifType == "Warning" then
+        accentColor = Theme.Warning
+    elseif notifType == "Error" then
+        accentColor = Theme.Error
+    end
+    
+    -- Colored accent bar on the left
+    local accentBar = createFrame({
+        BackgroundColor = accentColor,
+        Size = UDim2.new(0, 4, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        Parent = notifFrame,
+    })
+    
+    -- Title label
+    local titleLabel = createTextLabel(notifFrame, title, 13)
+    titleLabel.Position = UDim2.new(0, 12, 0, 0)
+    titleLabel.Size = UDim2.new(1, -24, 0, 16)
+    titleLabel.TextColor3 = Theme.Accent
+    titleLabel.Font = Enum.Font.GothamBold
+    
+    -- Description label
+    local descLabel = createTextLabel(notifFrame, description, 11)
+    descLabel.Position = UDim2.new(0, 12, 0, 18)
+    descLabel.Size = UDim2.new(1, -24, 0, 14)
+    descLabel.TextColor3 = Theme.TextSecondary
+    descLabel.Font = Enum.Font.Gotham
+    descLabel.TextWrapped = true
+    descLabel.TextYAlignment = Enum.TextYAlignment.Top
+    
+    -- Calculate height based on description length
+    local height = 50
+    if #description > 40 then
+        height = 70
+    end
+    
+    -- Start transparent for fade-in animation
+    notifFrame.BackgroundTransparency = 1
+    titleLabel.TextTransparency = 1
+    descLabel.TextTransparency = 1
+    accentBar.BackgroundTransparency = 1
+    
+    -- Animate in
+    createTween(notifFrame, {
+        Size = UDim2.new(1, 0, 0, height),
+        BackgroundTransparency = 0
+    }, 0.3)
+    
+    createTween(titleLabel, {TextTransparency = 0}, 0.3)
+    createTween(descLabel, {TextTransparency = 0}, 0.3)
+    createTween(accentBar, {BackgroundTransparency = 0}, 0.3)
+    
+    -- Auto remove after duration
+    task.delay(duration, function()
+        createTween(notifFrame, {
+            Size = UDim2.new(1, 0, 0, 0),
+            BackgroundTransparency = 1
+        }, 0.3)
+        
+        createTween(titleLabel, {TextTransparency = 1}, 0.3)
+        createTween(descLabel, {TextTransparency = 1}, 0.3)
+        
+        createTween(accentBar, {BackgroundTransparency = 1}, 0.3).Completed:Connect(function()
+            notifFrame:Destroy()
+        end)
+    end)
+end
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- CREATE WINDOW FUNCTION
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+--[[
+    Create a new UI window
+    
+    Parameters:
+        options: Table with optional keys:
+            - Title: Window title (string, default: "Kapao Hub")
+            - Subtitle: Window subtitle (string, default: "Skill System")
+            - ScriptName: Name for config file (string, default: "Default")
+            - Version: Version string (string, default: "v1.0.0")
+    
+    Returns:
+        Window object with methods:
+            - AddTab(name): Create a new tab
+            - Notify(options): Show a notification
+]]
+function KapaoUI:CreateWindow(options)
+    options = options or {}
+    
+    local title = options.Title or "Kapao Hub"
+    local subtitle = options.Subtitle or "Skill System"
+    local scriptName = options.ScriptName or "Default"
+    local version = options.Version or "v1.0.0"
+    
+    -- ═══════════════════════════════════════════════════════════════════════════
+    -- FIX: Unlock mouse
+    -- ═══════════════════════════════════════════════════════════════════════════
+    
+    UserInputService.MouseIconEnabled = true
+    UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+    
+    pcall(function()
+        game:GetService("StarterGui"):SetCore("ResetButtonCallback", true)
+    end)
+    
+    -- Create config manager
+    local config = ConfigManager.new(scriptName)
+    
+    -- Get GUI parent
+    local rootGui = getGuiParent()
+    
+    -- Create notification system
+    local notificationSystem = NotificationSystem:Create(rootGui)
+    
+    -- ═══════════════════════════════════════════════════════════════════════════
+    -- MAIN WINDOW FRAME
+    -- ═══════════════════════════════════════════════════════════════════════════
+    
+    local mainWindow = createFrame({
+        BackgroundColor = Theme.WindowBackground,
+        Size = UDim2.new(0, 680, 0, 450),
+        Position = UDim2.new(0.5, -340, 0.5, -225),
+        Parent = rootGui,
+    })
+    mainWindow.Name = "KapaoWindow"
+    mainWindow.ClipsDescendants = true
+    createCorner(mainWindow, 12)
+    
+    -- ═══════════════════════════════════════════════════════════════════════════
+    -- SUBTLE GRADIENT BACKGROUND
+    -- ═══════════════════════════════════════════════════════════════════════════
+    
+    local gradientBg = Instance.new("Frame")
+    gradientBg.BackgroundColor3 = Color3.fromRGB(8, 12, 20)
+    gradientBg.Size = UDim2.new(1, 0, 1, 0)
+    gradientBg.ZIndex = 0
+    gradientBg.BorderSizePixel = 0
+    gradientBg.Parent = mainWindow
+    
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(6, 10, 18)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(10, 15, 25)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(8, 12, 20))
+    }
+    gradient.Rotation = 90
+    gradient.Parent = gradientBg
+    
+    -- Corner decorations disabled for cleaner look
+    -- createCornerDecorations(mainWindow)
+    
+    -- ═══════════════════════════════════════════════════════════════════════════
+    -- ANIMATED BORDER (Breathing Glow Effect)
+    -- ═══════════════════════════════════════════════════════════════════════════
+    
+    local borderFrame = Instance.new("Frame")
+    borderFrame.BackgroundTransparency = 1
+    borderFrame.Size = UDim2.new(1, 0, 1, 0)
+    borderFrame.ZIndex = 10
+    borderFrame.Parent = mainWindow
+    
+    local borderStroke = createStroke(borderFrame, Theme.ElementBorder, 2)
+    
+    -- Breathing animation loop
+    task.spawn(function()
+        while mainWindow.Parent do
+            createTween(borderStroke, {Thickness = 3}, 1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+            task.wait(1)
+            createTween(borderStroke, {Thickness = 2}, 1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+            task.wait(1)
+        end
+    end)
+    
+    -- ═══════════════════════════════════════════════════════════════════════════
+    -- TOP BAR
+    -- ═══════════════════════════════════════════════════════════════════════════
+    
+    local topBar = createFrame({
+        BackgroundColor = Theme.TopBar,
+        Size = UDim2.new(1, 0, 0, 55),
+        Parent = mainWindow,
+    })
+    createStroke(topBar, Theme.Accent, 0)
+    
+    -- Accent line under top bar
+    local accentLine = createFrame({
+        BackgroundColor = Theme.Accent,
+        Size = UDim2.new(1, 0, 0, 2),
+        Position = UDim2.new(0, 0, 1, -2),
+        Parent = topBar,
+    })
+    
+    -- Title label
+    local titleLabel = createTextLabel(topBar, title, 18)
+    titleLabel.Position = UDim2.new(0, 20, 0, 8)
+    titleLabel.Size = UDim2.new(0.6, 0, 0, 20)
+    titleLabel.TextColor3 = Theme.Accent
+    
+    -- Subtitle label
+    local subtitleLabel = createTextLabel(topBar, subtitle, 12)
+    subtitleLabel.Position = UDim2.new(0, 20, 0, 30)
+    subtitleLabel.Size = UDim2.new(0.6, 0, 0, 16)
+    subtitleLabel.TextColor3 = Theme.TextSecondary
+    subtitleLabel.Font = Enum.Font.Gotham
+    
+    -- ═══════════════════════════════════════════════════════════════════════════
+    -- MINIMIZE BUTTON
+    -- ═══════════════════════════════════════════════════════════════════════════
+    
+    local minimizeButton = Instance.new("TextButton")
+    minimizeButton.BackgroundColor3 = Color3.fromRGB(60, 120, 180)
+    minimizeButton.BorderSizePixel = 0
+    minimizeButton.Size = UDim2.new(0, 32, 0, 32)
+    minimizeButton.Position = UDim2.new(1, -84, 0, 12)
+    minimizeButton.Text = "−"
+    minimizeButton.Font = Enum.Font.GothamBold
+    minimizeButton.TextSize = 18
+    minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    minimizeButton.AutoButtonColor = false
+    minimizeButton.Parent = topBar
+    createCorner(minimizeButton, 4)
+    
+    local isMinimized = false
+    local originalSize = mainWindow.Size
+    
+    minimizeButton.MouseButton1Click:Connect(function()
+        isMinimized = not isMinimized
+        
+        if isMinimized then
+            createTween(mainWindow, {Size = UDim2.new(0, 680, 0, 55)}, 0.3, Enum.EasingStyle.Back)
+            minimizeButton.Text = "+"
+        else
+            createTween(mainWindow, {Size = originalSize}, 0.3, Enum.EasingStyle.Back)
+            minimizeButton.Text = "−"
+        end
+    end)
+    
+    minimizeButton.MouseEnter:Connect(function()
+        createTween(minimizeButton, {BackgroundColor3 = Color3.fromRGB(80, 140, 200)}, 0.2)
+    end)
+    
+    minimizeButton.MouseLeave:Connect(function()
+        createTween(minimizeButton, {BackgroundColor3 = Color3.fromRGB(60, 120, 180)}, 0.2)
+    end)
+    
+    -- ═══════════════════════════════════════════════════════════════════════════
+    -- CLOSE BUTTON
+    -- ═══════════════════════════════════════════════════════════════════════════
+    
+    local closeButton = Instance.new("TextButton")
+    closeButton.BackgroundColor3 = Color3.fromRGB(180, 40, 60)
+    closeButton.BorderSizePixel = 0
+    closeButton.Size = UDim2.new(0, 32, 0, 32)
+    closeButton.Position = UDim2.new(1, -42, 0, 12)
+    closeButton.Text = "✕"
+    closeButton.Font = Enum.Font.GothamBold
+    closeButton.TextSize = 16
+    closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeButton.AutoButtonColor = false
+    closeButton.Parent = topBar
+    createCorner(closeButton, 4)
+    
+    closeButton.MouseEnter:Connect(function()
+        createTween(closeButton, {BackgroundColor3 = Color3.fromRGB(220, 60, 80)}, 0.2)
+    end)
+    
+    closeButton.MouseLeave:Connect(function()
+        createTween(closeButton, {BackgroundColor3 = Color3.fromRGB(180, 40, 60)}, 0.2)
+    end)
+    
+    closeButton.MouseButton1Click:Connect(function()
+        createTween(mainWindow, {Size = UDim2.new(0, 0, 0, 0)}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In).Completed:Connect(function()
+            rootGui:Destroy()
+        end)
+    end)
+    
+    -- ═══════════════════════════════════════════════════════════════════════════
+    -- CONTENT AREA
+    -- ═══════════════════════════════════════════════════════════════════════════
+    
+    local contentArea = Instance.new("Frame")
+    contentArea.BackgroundTransparency = 1
+    contentArea.Size = UDim2.new(1, -20, 1, -94)
+    contentArea.Position = UDim2.new(0, 10, 0, 62)
+    contentArea.Parent = mainWindow
+    
+    -- ═══════════════════════════════════════════════════════════════════════════
+    -- SIDEBAR (Tab Buttons)
+    -- ═══════════════════════════════════════════════════════════════════════════
+    
+    local sidebar = createFrame({
+        BackgroundColor = Theme.ElementBackground,
+        Size = UDim2.new(0, 180, 1, -30),
+        Parent = contentArea,
+    })
+    createCorner(sidebar, 8)
+    createStroke(sidebar, Theme.ElementBorder, 1)
+    
+    local sidebarLayout = Instance.new("UIListLayout")
+    sidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    sidebarLayout.Padding = UDim.new(0, 6)
+    sidebarLayout.Parent = sidebar
+    
+    local sidebarPadding = Instance.new("UIPadding")
+    sidebarPadding.PaddingTop = UDim.new(0, 12)
+    sidebarPadding.PaddingLeft = UDim.new(0, 10)
+    sidebarPadding.PaddingRight = UDim.new(0, 10)
+    sidebarPadding.Parent = sidebar
+    
+    -- ═══════════════════════════════════════════════════════════════════════════
+    -- TAB CONTAINER
+    -- ═══════════════════════════════════════════════════════════════════════════
+    
+    local tabContainer = createFrame({
+        BackgroundColor = Theme.ElementBackground,
+        Size = UDim2.new(1, -195, 1, -30),
+        Position = UDim2.new(0, 192, 0, 0),
+        Parent = contentArea,
+    })
+    createCorner(tabContainer, 8)
+    createStroke(tabContainer, Theme.ElementBorder, 1)
+    
+    local tabPadding = Instance.new("UIPadding")
+    tabPadding.PaddingTop = UDim.new(0, 14)
+    tabPadding.PaddingBottom = UDim.new(0, 14)
+    tabPadding.PaddingLeft = UDim.new(0, 16)
+    tabPadding.PaddingRight = UDim.new(0, 16)
+    tabPadding.Parent = tabContainer
+    
+    -- ═══════════════════════════════════════════════════════════════════════════
+    -- STATUS BAR (FPS, Ping, Version)
+    -- ═══════════════════════════════════════════════════════════════════════════
+    
+    local statusBar = createFrame({
+        BackgroundColor = Theme.TopBar,
+        Size = UDim2.new(1, -20, 0, 24),
+        Position = UDim2.new(0, 10, 1, -26),
+        Parent = mainWindow,
+    })
+    createCorner(statusBar, 6)
+    createStroke(statusBar, Theme.ElementBorder, 1)
+    
+    local statusPadding = Instance.new("UIPadding")
+    statusPadding.PaddingLeft = UDim.new(0, 12)
+    statusPadding.PaddingRight = UDim.new(0, 12)
+    statusPadding.Parent = statusBar
+    
+    -- Version label
+    local versionLabel = createTextLabel(statusBar, "Ver: " .. version, 10)
+    versionLabel.Size = UDim2.new(0, 150, 1, 0)
+    versionLabel.TextColor3 = Theme.TextDark
+    versionLabel.Font = Enum.Font.Gotham
+    
+    -- FPS label
+    local fpsLabel = createTextLabel(statusBar, "FPS: --", 10)
+    fpsLabel.Size = UDim2.new(0, 80, 1, 0)
+    fpsLabel.Position = UDim2.new(0, 160, 0, 0)
+    fpsLabel.TextColor3 = Theme.Success
+    fpsLabel.Font = Enum.Font.Code
+    
+    -- Ping label
+    local pingLabel = createTextLabel(statusBar, "Ping: --ms", 10)
+    pingLabel.Size = UDim2.new(0, 100, 1, 0)
+    pingLabel.Position = UDim2.new(0, 250, 0, 0)
+    pingLabel.TextColor3 = Theme.Accent
+    pingLabel.Font = Enum.Font.Code
+    
+    -- FPS/Ping counter (updates every second)
+    local lastUpdate = tick()
+    local frameCount = 0
+    
+    RunService.RenderStepped:Connect(function()
+        frameCount = frameCount + 1
+        local now = tick()
+        
+        if now - lastUpdate >= 1 then
+            fpsLabel.Text = string.format("FPS: %d", math.floor(frameCount / (now - lastUpdate)))
+            frameCount = 0
+            lastUpdate = now
+            
+            pingLabel.Text = string.format("Ping: %dms", math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()))
+        end
+    end)
+    
+    -- ═══════════════════════════════════════════════════════════════════════════
+    -- MAKE WINDOW DRAGGABLE
+    -- ═══════════════════════════════════════════════════════════════════════════
+    
+    makeDraggable(mainWindow, topBar)
+    
+    -- ═══════════════════════════════════════════════════════════════════════════
+    -- ENTRANCE ANIMATION
+    -- ═══════════════════════════════════════════════════════════════════════════
+    
+    mainWindow.Size = UDim2.new(0, 0, 0, 0)
+    createTween(mainWindow, {Size = UDim2.new(0, 680, 0, 450)}, 0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+    
+    -- ═══════════════════════════════════════════════════════════════════════════
+    -- WINDOW OBJECT
+    -- ═══════════════════════════════════════════════════════════════════════════
+    
+    local window = {
+        _tabs = {},
+        _activeTab = nil,
+        Config = config,
+        Root = mainWindow,
+        NS = notificationSystem,
+        StatusBar = statusBar,
+    }
+    
+    --[[
+        Show a notification
+        
+        Parameters:
+            options: Same as NotificationSystem:Notify()
+    ]]
+    function window:Notify(options)
+        notificationSystem:Notify(options)
+    end
+    
+    --[[
+        Create a new tab
+        
+        Parameters:
+            name: Tab name (string)
+        
+        Returns:
+            Tab object with methods to add components
+    ]]
+    function window:AddTab(name)
+        name = name or "Tab"
+        
+        -- ═══════════════════════════════════════════════════════════════════════
+        -- TAB BUTTON
+        -- ═══════════════════════════════════════════════════════════════════════
+        
+        local tabButton = Instance.new("TextButton")
+        tabButton.BackgroundColor3 = Theme.ElementBackground
+        tabButton.BorderSizePixel = 0
+        tabButton.Size = UDim2.new(1, 0, 0, 36)
+        tabButton.Text = name
+        tabButton.Font = Enum.Font.GothamSemibold
+        tabButton.TextSize = 13
+        tabButton.TextColor3 = Theme.TextPrimary
+        tabButton.AutoButtonColor = false
+        tabButton.Parent = sidebar
+        createCorner(tabButton, 6)
+        
+        local tabButtonStroke = createStroke(tabButton, Theme.ElementBorder, 1)
+        
+        -- ═══════════════════════════════════════════════════════════════════════
+        -- TAB CONTENT FRAME (Scrolling)
+        -- ═══════════════════════════════════════════════════════════════════════
+        
+        local tabFrame = Instance.new("ScrollingFrame")
+        tabFrame.Name = name .. "Tab"
+        tabFrame.BackgroundTransparency = 1
+        tabFrame.Size = UDim2.new(1, 0, 1, 0)
+        tabFrame.Visible = false
+        tabFrame.BorderSizePixel = 0
+        tabFrame.ScrollBarThickness = 4
+        tabFrame.ScrollBarImageColor3 = Theme.Accent
+        tabFrame.CanvasSize = UDim2.new(0, 0, 2, 0) -- FIX: Set larger canvas size
+        tabFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+        tabFrame.Parent = tabContainer
+        
+        local tabFrameLayout = Instance.new("UIListLayout")
+        tabFrameLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        tabFrameLayout.Padding = UDim.new(0, 10)
+        tabFrameLayout.Parent = tabFrame
+        
+        -- FIX: Update canvas size when layout changes
+        tabFrameLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            tabFrame.CanvasSize = UDim2.new(0, 0, 0, tabFrameLayout.AbsoluteContentSize.Y + 20)
+        end)
+        
+        -- ═══════════════════════════════════════════════════════════════════════
+        -- TAB OBJECT
+        -- ═══════════════════════════════════════════════════════════════════════
+        
+        local tab = {
+            Name = name,
+            Button = tabButton,
+            Frame = tabFrame,
+            Stroke = tabButtonStroke,
+            Selected = false,
+        }
+        
+        -- Tab selection function
+        local function selectTab()
+            if window._activeTab == tab then
+                return
+            end
+            
+            -- Deselect all tabs
+            for _, otherTab in ipairs(window._tabs) do
+                otherTab.Selected = false
+                otherTab.Frame.Visible = false
+                createTween(otherTab.Button, {BackgroundColor3 = Theme.ElementBackground}, 0.2)
+                otherTab.Stroke.Color = Theme.ElementBorder
+            end
+            
+            -- Select this tab
+            tab.Selected = true
+            tab.Frame.Visible = true
+            createTween(tab.Button, {BackgroundColor3 = Theme.ElementBackgroundHover}, 0.2)
+            tab.Stroke.Color = Theme.Accent
+            window._activeTab = tab
+        end
+        
+        tabButton.MouseButton1Click:Connect(selectTab)
+        
+        tabButton.MouseEnter:Connect(function()
+            if not tab.Selected then
+                createTween(tabButton, {BackgroundColor3 = Theme.ElementBackgroundHover}, 0.2)
+            end
+        end)
+        
+        tabButton.MouseLeave:Connect(function()
+            if not tab.Selected then
+                createTween(tabButton, {BackgroundColor3 = Theme.ElementBackground}, 0.2)
+            end
+        end)
+        
+        -- Auto-select first tab
+        if not window._activeTab then
+            selectTab()
+        end
+        
+        -- ═══════════════════════════════════════════════════════════════════════
+        -- COMPONENT 1: SECTION
+        -- ═══════════════════════════════════════════════════════════════════════
+        
+        --[[
+            Add a section header (group label)
+            
+            Parameters:
+                text: Section text (string)
+            
+            Returns:
+                Section frame
+        ]]
+        function tab:AddSection(text)
+            local sectionFrame = createFrame({
+                BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
+                Size = UDim2.new(1, 0, 0, 30),
+                Parent = tabFrame,
+            })
+            sectionFrame.BackgroundTransparency = 1
+            
+            local sectionLabel = createTextLabel(sectionFrame, text or "Section", 15)
+            sectionLabel.Size = UDim2.new(1, 0, 1, 0)
+            sectionLabel.TextColor3 = Theme.Accent
+            
+            return sectionFrame
+        end
+        
+        -- ═══════════════════════════════════════════════════════════════════════
+        -- COMPONENT 2: DIVIDER
+        -- ═══════════════════════════════════════════════════════════════════════
+        
+        --[[
+            Add a horizontal divider line
+            
+            Returns:
+                Divider frame
+        ]]
+        function tab:AddDivider()
+            local dividerFrame = createFrame({
+                BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
+                Size = UDim2.new(1, 0, 0, 12),
+                Parent = tabFrame,
+            })
+            dividerFrame.BackgroundTransparency = 1
+            
+            local line = createFrame({
+                BackgroundColor = Theme.ElementBorder,
+                Size = UDim2.new(1, 0, 0, 1),
+                Position = UDim2.new(0, 0, 0.5, 0),
+                Parent = dividerFrame,
+            })
+            
+            return dividerFrame
+        end
+        
+        -- ═══════════════════════════════════════════════════════════════════════
+        -- COMPONENT 3: LABEL
+        -- ═══════════════════════════════════════════════════════════════════════
+        
+        --[[
+            Add a simple text label
+            
+            Parameters:
+                text: Label text (string)
+            
+            Returns:
+                Label object with methods:
+                    - SetText(text): Update label text
+        ]]
+        function tab:AddLabel(text)
+            local labelFrame = createFrame({
+                BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
+                Size = UDim2.new(1, 0, 0, 24),
+                Parent = tabFrame,
+            })
+            labelFrame.BackgroundTransparency = 1
+            
+            local label = createTextLabel(labelFrame, text or "Label", 12)
+            label.Size = UDim2.new(1, 0, 1, 0)
+            label.TextColor3 = Theme.TextSecondary
+            label.Font = Enum.Font.Gotham
+            label.TextWrapped = true
+            label.TextYAlignment = Enum.TextYAlignment.Top
+            
+            return {
+                SetText = function(newText)
+                    label.Text = newText
+                end
+            }
+        end
+        
+        -- ═══════════════════════════════════════════════════════════════════════
+        -- COMPONENT 4: PARAGRAPH
+        -- ═══════════════════════════════════════════════════════════════════════
+        
+        --[[
+            Add a paragraph with title and multi-line content
+            
+            Parameters:
+                options: Table with keys:
+                    - Title: Paragraph title (string)
+                    - Content: Paragraph content (string)
+            
+            Returns:
+                Paragraph object with methods:
+                    - SetTitle(text): Update title
+                    - SetContent(text): Update content
+        ]]
+        function tab:AddParagraph(options)
+            local title = options.Title or "Paragraph"
+            local content = options.Content or ""
+            
+            local paragraphFrame = createFrame({
+                BackgroundColor = Theme.ElementBackground,
+                Size = UDim2.new(1, 0, 0, 70),
+                Parent = tabFrame,
+            })
+            createCorner(paragraphFrame, 6)
+            createStroke(paragraphFrame, Theme.ElementBorder, 1)
+            
+            local padding = Instance.new("UIPadding")
+            padding.PaddingTop = UDim.new(0, 8)
+            padding.PaddingBottom = UDim.new(0, 8)
+            padding.PaddingLeft = UDim.new(0, 10)
+            padding.PaddingRight = UDim.new(0, 10)
+            padding.Parent = paragraphFrame
+            
+            local titleLabel = createTextLabel(paragraphFrame, title, 13)
+            titleLabel.Size = UDim2.new(1, 0, 0, 16)
+            titleLabel.Position = UDim2.new(0, 0, 0, 0)
+            titleLabel.TextColor3 = Theme.Accent
+            titleLabel.Font = Enum.Font.GothamBold
+            
+            local contentLabel = createTextLabel(paragraphFrame, content, 11)
+            contentLabel.Size = UDim2.new(1, 0, 1, -18)
+            contentLabel.Position = UDim2.new(0, 0, 0, 18)
+            contentLabel.TextColor3 = Theme.TextSecondary
+            contentLabel.Font = Enum.Font.Gotham
+            contentLabel.TextWrapped = true
+            contentLabel.TextYAlignment = Enum.TextYAlignment.Top
+            
+            return {
+                SetTitle = function(newTitle)
+                    titleLabel.Text = newTitle
+                end,
+                SetContent = function(newContent)
+                    contentLabel.Text = newContent
+                end
+            }
+        end
+        
+        -- ═══════════════════════════════════════════════════════════════════════
+        -- COMPONENT 5: BUTTON
+        -- ═══════════════════════════════════════════════════════════════════════
+        
+        --[[
+            Add a clickable button
+            
+            Parameters:
+                options: Can be string (label) or table with keys:
+                    - Label: Button text (string)
+                    - Callback: Function to call when clicked
+            
+            Returns:
+                Button instance
+        ]]
+        function tab:AddButton(options)
+            if type(options) == "string" then
+                options = {Label = options}
+            end
+            
+            local label = options.Label or "Button"
+            local callback = options.Callback or function() end
+            
+            local buttonFrame = createFrame({
+                BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
+                Size = UDim2.new(1, 0, 0, 38),
+                Parent = tabFrame,
+            })
+            buttonFrame.BackgroundTransparency = 1
+            
+            local button = Instance.new("TextButton")
+            button.BackgroundColor3 = Theme.ElementBackground
+            button.BorderSizePixel = 0
+            button.Size = UDim2.new(0, 200, 0, 32)
+            button.Position = UDim2.new(0, 0, 0, 3)
+            button.Text = label
+            button.Font = Enum.Font.GothamSemibold
+            button.TextSize = 13
+            button.TextColor3 = Theme.Accent
+            button.AutoButtonColor = false
+            button.Parent = buttonFrame
+            createCorner(button, 8)
+            
+            local buttonStroke = createStroke(button, Theme.Accent, 1)
+            
+            -- Add glow effect on hover
+            local buttonGlow = Instance.new("UIStroke")
+            buttonGlow.Color = Theme.Accent
+            buttonGlow.Thickness = 0
+            buttonGlow.Transparency = 0.5
+            buttonGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            buttonGlow.Parent = button
+            
+            button.MouseEnter:Connect(function()
+                createTween(button, {BackgroundColor3 = Theme.Accent}, 0.2)
+                createTween(button, {TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.2)
+                createTween(buttonStroke, {Thickness = 2}, 0.2)
+                createTween(buttonGlow, {Thickness = 4}, 0.2)
+            end)
+            
+            button.MouseLeave:Connect(function()
+                createTween(button, {BackgroundColor3 = Theme.ElementBackground}, 0.2)
+                createTween(button, {TextColor3 = Theme.Accent}, 0.2)
+                createTween(buttonStroke, {Thickness = 1}, 0.2)
+                createTween(buttonGlow, {Thickness = 0}, 0.2)
+            end)
+            
+            button.MouseButton1Click:Connect(function()
+                createTween(button, {BackgroundColor3 = Theme.AccentDark}, 0.1).Completed:Connect(function()
+                    createTween(button, {BackgroundColor3 = Theme.ElementBackgroundHover}, 0.2)
+                end)
+                pcall(callback)
+            end)
+            
+            return button
+        end
+        
+        -- ═══════════════════════════════════════════════════════════════════════
+        -- COMPONENT 6: TOGGLE
+        -- ═══════════════════════════════════════════════════════════════════════
+        
+        --[[
+            Add a toggle switch (On/Off)
+            
+            Parameters:
+                options: Table with keys:
+                    - Label: Toggle label (string)
+                    - Key: Config key for auto-save (string, optional)
+                    - Default: Default state (boolean, optional)
+                    - Callback: Function called when toggled (optional)
+            
+            Returns:
+                Toggle object with methods:
+                    - Set(state): Set toggle state
+                    - Get(): Get current state
+        ]]
+        function tab:AddToggle(options)
+            local label = options.Label or "Toggle"
+            local key = options.Key or label:gsub("%s+", "_"):lower()
+            local default = options.Default
+            local callback = options.Callback or function() end
+            
+            -- Get saved value or use default
+            if default == nil then
+                default = config:Get(key, false)
+            end
+            
+            local toggleFrame = createFrame({
+                BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
+                Size = UDim2.new(1, 0, 0, 36),
+                Parent = tabFrame,
+            })
+            toggleFrame.BackgroundTransparency = 1
+            
+            local toggleLabel = createTextLabel(toggleFrame, label, 13)
+            toggleLabel.Position = UDim2.new(0, 0, 0, 8)
+            toggleLabel.Size = UDim2.new(1, -70, 1, -8)
+            
+            -- Switch background
+            local switchBg = createFrame({
+                BackgroundColor = Theme.ElementBackground,
+                Size = UDim2.new(0, 50, 0, 26),
+                Position = UDim2.new(1, -60, 0, 5),
+                Parent = toggleFrame,
+            })
+            createCorner(switchBg, 13)
+            
+            local switchStroke = createStroke(switchBg, Theme.ElementBorder, 1)
+            
+            -- Add glow effect
+            local switchGlow = Instance.new("UIStroke")
+            switchGlow.Color = Theme.Accent
+            switchGlow.Thickness = 0
+            switchGlow.Transparency = 0.3
+            switchGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            switchGlow.Parent = switchBg
+            
+            -- Switch knob
+            local switchKnob = createFrame({
+                BackgroundColor = Color3.fromRGB(140, 150, 170),
+                Size = UDim2.new(0, 20, 0, 20),
+                Position = UDim2.new(0, 3, 0, 3),
+                Parent = switchBg,
+            })
+            createCorner(switchKnob, 10)
+            
+            -- Knob shadow
+            local knobShadow = Instance.new("UIStroke")
+            knobShadow.Color = Color3.fromRGB(0, 0, 0)
+            knobShadow.Thickness = 2
+            knobShadow.Transparency = 0.7
+            knobShadow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            knobShadow.Parent = switchKnob
+            
+            local state = default
+            
+            -- Update visual state
+            local function updateVisual()
+                if state then
+                    createTween(switchBg, {BackgroundColor3 = Theme.Accent}, 0.25)
+                    createTween(switchKnob, {
+                        Position = UDim2.new(1, -23, 0, 3),
+                        BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                    }, 0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+                    createTween(switchStroke, {Color = Theme.Accent}, 0.25)
+                    createTween(switchGlow, {Thickness = 3}, 0.25)
+                else
+                    createTween(switchBg, {BackgroundColor3 = Theme.ElementBackground}, 0.25)
+                    createTween(switchKnob, {
+                        Position = UDim2.new(0, 3, 0, 3),
+                        BackgroundColor3 = Color3.fromRGB(140, 150, 170)
+                    }, 0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+                    createTween(switchStroke, {Color = Theme.ElementBorder}, 0.25)
+                    createTween(switchGlow, {Thickness = 0}, 0.25)
+                end
+            end
+            
+            updateVisual()
+            
+            -- Set state function
+            local function setState(newState)
+                state = newState
+                updateVisual()
+                config:Set(key, state)
+                pcall(callback, state)
+            end
+            
+            switchBg.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    setState(not state)
+                end
+            end)
+            
+            -- Call callback with initial state
+            task.defer(function()
+                pcall(callback, state)
+            end)
+            
+            return {
+                Set = setState,
+                Get = function()
+                    return state
+                end
+            }
+        end
+        
+        -- ═══════════════════════════════════════════════════════════════════════
+        -- COMPONENT 7: SLIDER
+        -- ═══════════════════════════════════════════════════════════════════════
+        
+        --[[
+            Add a slider for number selection
+            
+            Parameters:
+                options: Table with keys:
+                    - Label: Slider label (string)
+                    - Key: Config key for auto-save (string, optional)
+                    - Min: Minimum value (number, default: 0)
+                    - Max: Maximum value (number, default: 100)
+                    - Increment: Step increment (number, default: 1)
+                    - Default: Default value (number, optional)
+                    - Callback: Function called when value changes
+            
+            Returns:
+                Slider object with methods:
+                    - Set(value): Set slider value
+                    - Get(): Get current value
+        ]]
+        function tab:AddSlider(options)
+            local label = options.Label or "Slider"
+            local key = options.Key or label:gsub("%s+", "_"):lower()
+            local min = options.Min or 0
+            local max = options.Max or 100
+            local increment = options.Increment or 1
+            local default = options.Default
+            local callback = options.Callback or function() end
+            
+            -- Get saved value or use default
+            if default == nil then
+                default = config:Get(key, min)
+            end
+            
+            local sliderFrame = createFrame({
+                BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
+                Size = UDim2.new(1, 0, 0, 50),
+                Parent = tabFrame,
+            })
+            sliderFrame.BackgroundTransparency = 1
+            
+            -- Label
+            local sliderLabel = createTextLabel(sliderFrame, label, 13)
+            sliderLabel.Position = UDim2.new(0, 0, 0, 2)
+            sliderLabel.Size = UDim2.new(0.7, 0, 0, 18)
+            
+            -- Value label
+            local valueLabel = createTextLabel(sliderFrame, tostring(default), 13)
+            valueLabel.Position = UDim2.new(1, -60, 0, 2)
+            valueLabel.Size = UDim2.new(0, 60, 0, 18)
+            valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+            valueLabel.TextColor3 = Theme.Accent
+            
+            -- Slider background
+            local sliderBg = createFrame({
+                BackgroundColor = Theme.ElementBackground,
+                Size = UDim2.new(1, -10, 0, 10),
+                Position = UDim2.new(0, 5, 0, 28),
+                Parent = sliderFrame,
+            })
+            createCorner(sliderBg, 5)
+            createStroke(sliderBg, Theme.ElementBorder, 1)
+            
+            -- Slider fill
+            local sliderFill = createFrame({
+                BackgroundColor = Theme.Accent,
+                Size = UDim2.new(0, 0, 1, 0),
+                Parent = sliderBg,
+            })
+            createCorner(sliderFill, 5)
+            
+            -- Fill glow
+            local fillGlow = Instance.new("UIStroke")
+            fillGlow.Color = Theme.Accent
+            fillGlow.Thickness = 2
+            fillGlow.Transparency = 0.5
+            fillGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            fillGlow.Parent = sliderFill
+            
+            -- Slider knob
+            local sliderKnob = createFrame({
+                BackgroundColor = Color3.fromRGB(255, 255, 255),
+                Size = UDim2.new(0, 18, 0, 18),
+                Position = UDim2.new(0, 0, 0.5, -9),
+                Parent = sliderBg,
+            })
+            createCorner(sliderKnob, 9)
+            createStroke(sliderKnob, Theme.Accent, 2)
+            
+            -- Knob glow
+            local knobGlow = Instance.new("UIStroke")
+            knobGlow.Color = Theme.Accent
+            knobGlow.Thickness = 0
+            knobGlow.Transparency = 0.3
+            knobGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            knobGlow.Parent = sliderKnob
+            
+            local value = default
+            
+            -- Update visual
+            local function updateVisual()
+                local percent = (value - min) / (max - min)
+                sliderFill.Size = UDim2.new(percent, 0, 1, 0)
+                sliderKnob.Position = UDim2.new(percent, -8, 0.5, -8)
+                valueLabel.Text = tostring(value)
+            end
+            
+            updateVisual()
+            
+            -- Set value function
+            local function setValue(newValue)
+                value = math.clamp(math.floor((newValue + increment / 2) / increment) * increment, min, max)
+                updateVisual()
+                config:Set(key, value)
+                pcall(callback, value)
+            end
+            
+            local dragging = false
+            
+            sliderBg.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    dragging = true
+                    createTween(knobGlow, {Thickness = 4}, 0.2)
+                    local mousePos = UserInputService:GetMouseLocation()
+                    local percent = math.clamp((mousePos.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
+                    setValue(min + (max - min) * percent)
+                end
+            end)
+            
+            sliderBg.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    dragging = false
+                    createTween(knobGlow, {Thickness = 0}, 0.2)
+                end
+            end)
+            
+            sliderBg.MouseEnter:Connect(function()
+                createTween(knobGlow, {Thickness = 2}, 0.2)
+            end)
+            
+            sliderBg.MouseLeave:Connect(function()
+                if not dragging then
+                    createTween(knobGlow, {Thickness = 0}, 0.2)
+                end
+            end)
+            
+            UserInputService.InputChanged:Connect(function(input)
+                if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                    local mousePos = UserInputService:GetMouseLocation()
+                    local percent = math.clamp((mousePos.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
+                    setValue(min + (max - min) * percent)
+                end
+            end)
+            
+            -- Call callback with initial value
+            task.defer(function()
+                pcall(callback, value)
+            end)
+            
+            return {
+                Set = setValue,
+                Get = function()
+                    return value
+                end
+            }
+        end
+        
+        -- ═══════════════════════════════════════════════════════════════════════
+        -- COMPONENT 8: DROPDOWN
+        -- ═══════════════════════════════════════════════════════════════════════
+        
+        --[[
+            Add a dropdown menu (single selection)
+            
+            Parameters:
+                options: Table with keys:
+                    - Label: Dropdown label (string)
+                    - Key: Config key for auto-save (string, optional)
+                    - Options: Array of option strings
+                    - Default: Default selected option (string, optional)
+                    - Callback: Function called when selection changes
+            
+            Returns:
+                Dropdown object with methods:
+                    - Set(option): Set selected option
+                    - Get(): Get current selection
+        ]]
+        function tab:AddDropdown(options)
+            local label = options.Label or "Dropdown"
+            local key = options.Key or label:gsub("%s+", "_"):lower()
+            local optionsList = options.Options or {"Option 1", "Option 2"}
+            local default = options.Default
+            local callback = options.Callback or function() end
+            
+            -- Get saved value or use default
+            if default == nil then
+                default = config:Get(key, optionsList[1])
+            end
+            
+            local dropdownFrame = createFrame({
+                BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
+                Size = UDim2.new(1, 0, 0, 60),
+                Parent = tabFrame,
+            })
+            dropdownFrame.BackgroundTransparency = 1
+            dropdownFrame.ClipsDescendants = false
+            
+            -- Label
+            local dropdownLabel = createTextLabel(dropdownFrame, label, 13)
+            dropdownLabel.Position = UDim2.new(0, 0, 0, 2)
+            dropdownLabel.Size = UDim2.new(1, 0, 0, 18)
+            
+            -- Dropdown button
+            local dropdownButton = Instance.new("TextButton")
+            dropdownButton.BackgroundColor3 = Theme.ElementBackground
+            dropdownButton.BorderSizePixel = 0
+            dropdownButton.Size = UDim2.new(1, 0, 0, 32)
+            dropdownButton.Position = UDim2.new(0, 0, 0, 24)
+            dropdownButton.Text = "   " .. (default or "Select...")
+            dropdownButton.Font = Enum.Font.Gotham
+            dropdownButton.TextSize = 12
+            dropdownButton.TextColor3 = Theme.TextPrimary
+            dropdownButton.TextXAlignment = Enum.TextXAlignment.Left
+            dropdownButton.AutoButtonColor = false
+            dropdownButton.Parent = dropdownFrame
+            createCorner(dropdownButton, 6)
+            createStroke(dropdownButton, Theme.ElementBorder, 1)
+            
+            -- Arrow
+            local arrow = createTextLabel(dropdownButton, "▼", 10)
+            arrow.Position = UDim2.new(1, -24, 0, 0)
+            arrow.Size = UDim2.new(0, 20, 1, 0)
+            arrow.TextXAlignment = Enum.TextXAlignment.Center
+            arrow.TextColor3 = Theme.Accent
+            
+            -- Options list
+            local optionsList_Frame = createFrame({
+                BackgroundColor = Theme.ElementBackground,
+                Size = UDim2.new(1, 0, 0, 0),
+                Position = UDim2.new(0, 0, 0, 60),
+                Parent = dropdownFrame,
+            })
+            optionsList_Frame.Visible = false
+            optionsList_Frame.ZIndex = 100
+            createCorner(optionsList_Frame, 6)
+            createStroke(optionsList_Frame, Theme.Accent, 1)
+            
+            local optionsLayout = Instance.new("UIListLayout")
+            optionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            optionsLayout.Padding = UDim.new(0, 2)
+            optionsLayout.Parent = optionsList_Frame
+            
+            local optionsPadding = Instance.new("UIPadding")
+            optionsPadding.PaddingTop = UDim.new(0, 4)
+            optionsPadding.PaddingBottom = UDim.new(0, 4)
+            optionsPadding.PaddingLeft = UDim.new(0, 4)
+            optionsPadding.PaddingRight = UDim.new(0, 4)
+            optionsPadding.Parent = optionsList_Frame
+            
+            local selected = default
+            local isOpen = false
+            
+            -- Toggle dropdown
+            local function toggleDropdown()
+                isOpen = not isOpen
+                optionsList_Frame.Visible = isOpen
+                
+                if isOpen then
+                    createTween(optionsList_Frame, {Size = UDim2.new(1, 0, 0, #optionsList * 26 + 8)}, 0.25)
+                    createTween(arrow, {Rotation = 180}, 0.25)
+                else
+                    createTween(optionsList_Frame, {Size = UDim2.new(1, 0, 0, 0)}, 0.25).Completed:Connect(function()
+                        if not isOpen then
+                            optionsList_Frame.Visible = false
+                        end
+                    end)
+                    createTween(arrow, {Rotation = 0}, 0.25)
+                end
+            end
+            
+            dropdownButton.MouseButton1Click:Connect(toggleDropdown)
+            
+            -- Create option buttons
+            for _, option in ipairs(optionsList) do
+                local optionButton = Instance.new("TextButton")
+                optionButton.BackgroundColor3 = Theme.ElementBackground
+                optionButton.BorderSizePixel = 0
+                optionButton.Size = UDim2.new(1, 0, 0, 24)
+                optionButton.Text = "  " .. option
+                optionButton.Font = Enum.Font.Gotham
+                optionButton.TextSize = 12
+                optionButton.TextColor3 = Theme.TextPrimary
+                optionButton.TextXAlignment = Enum.TextXAlignment.Left
+                optionButton.AutoButtonColor = false
+                optionButton.Parent = optionsList_Frame
+                createCorner(optionButton, 4)
+                
+                optionButton.MouseEnter:Connect(function()
+                    createTween(optionButton, {BackgroundColor3 = Theme.ElementBackgroundHover}, 0.15)
+                end)
+                
+                optionButton.MouseLeave:Connect(function()
+                    createTween(optionButton, {BackgroundColor3 = Theme.ElementBackground}, 0.15)
+                end)
+                
+                optionButton.MouseButton1Click:Connect(function()
+                    selected = option
+                    dropdownButton.Text = "   " .. option
+                    config:Set(key, selected)
+                    pcall(callback, selected)
+                    toggleDropdown()
+                end)
+            end
+            
+            -- Call callback with initial value
+            task.defer(function()
+                pcall(callback, selected)
+            end)
+            
+            return {
+                Set = function(newValue)
+                    selected = newValue
+                    dropdownButton.Text = "   " .. newValue
+                    config:Set(key, selected)
+                    pcall(callback, selected)
+                end,
+                Get = function()
+                    return selected
+                end
+            }
+        end
+        
+        -- ═══════════════════════════════════════════════════════════════════════
+        -- COMPONENT 9: MULTIDROPDOWN
+        -- ═══════════════════════════════════════════════════════════════════════
+        
+        --[[
+            Add a multi-selection dropdown menu
+            
+            Parameters:
+                options: Table with keys:
+                    - Label: Dropdown label (string)
+                    - Key: Config key for auto-save (string, optional)
+                    - Options: Array of option strings
+                    - Default: Default selected options (array, optional)
+                    - Callback: Function called when selection changes
+            
+            Returns:
+                MultiDropdown object with methods:
+                    - Set(options): Set selected options (array)
+                    - Get(): Get current selections (array)
+        ]]
+        function tab:AddMultiDropdown(options)
+            local label = options.Label or "Multi Dropdown"
+            local key = options.Key or label:gsub("%s+", "_"):lower()
+            local optionsList = options.Options or {"Option 1", "Option 2"}
+            local default = options.Default or {}
+            local callback = options.Callback or function() end
+            
+            -- Ensure default is array
+            if type(default) == "string" then
+                default = {default}
+            end
+            
+            -- Get saved value
+            local savedValue = config:Get(key, default)
+            local selected = {}
+            for _, v in ipairs(savedValue) do
+                selected[v] = true
+            end
+            
+            local multiDropFrame = createFrame({
+                BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
+                Size = UDim2.new(1, 0, 0, 60),
+                Parent = tabFrame,
+            })
+            multiDropFrame.BackgroundTransparency = 1
+            multiDropFrame.ClipsDescendants = false
+            
+            -- Label
+            local multiDropLabel = createTextLabel(multiDropFrame, label, 13)
+            multiDropLabel.Position = UDim2.new(0, 0, 0, 2)
+            multiDropLabel.Size = UDim2.new(1, 0, 0, 18)
+            
+            -- Dropdown button
+            local multiDropButton = Instance.new("TextButton")
+            multiDropButton.BackgroundColor3 = Theme.ElementBackground
+            multiDropButton.BorderSizePixel = 0
+            multiDropButton.Size = UDim2.new(1, 0, 0, 32)
+            multiDropButton.Position = UDim2.new(0, 0, 0, 24)
+            multiDropButton.Text = "   Multiple..."
+            multiDropButton.Font = Enum.Font.Gotham
+            multiDropButton.TextSize = 12
+            multiDropButton.TextColor3 = Theme.TextPrimary
+            multiDropButton.TextXAlignment = Enum.TextXAlignment.Left
+            multiDropButton.AutoButtonColor = false
+            multiDropButton.Parent = multiDropFrame
+            createCorner(multiDropButton, 6)
+            createStroke(multiDropButton, Theme.ElementBorder, 1)
+            
+            -- Arrow
+            local arrow = createTextLabel(multiDropButton, "▼", 10)
+            arrow.Position = UDim2.new(1, -24, 0, 0)
+            arrow.Size = UDim2.new(0, 20, 1, 0)
+            arrow.TextXAlignment = Enum.TextXAlignment.Center
+            arrow.TextColor3 = Theme.Accent
+            
+            -- Options list
+            local optionsList_Frame = createFrame({
+                BackgroundColor = Theme.ElementBackground,
+                Size = UDim2.new(1, 0, 0, 0),
+                Position = UDim2.new(0, 0, 0, 60),
+                Parent = multiDropFrame,
+            })
+            optionsList_Frame.Visible = false
+            optionsList_Frame.ZIndex = 100
+            createCorner(optionsList_Frame, 6)
+            createStroke(optionsList_Frame, Theme.Accent, 1)
+            
+            local optionsLayout = Instance.new("UIListLayout")
+            optionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            optionsLayout.Padding = UDim.new(0, 2)
+            optionsLayout.Parent = optionsList_Frame
+            
+            local optionsPadding = Instance.new("UIPadding")
+            optionsPadding.PaddingTop = UDim.new(0, 4)
+            optionsPadding.PaddingBottom = UDim.new(0, 4)
+            optionsPadding.PaddingLeft = UDim.new(0, 4)
+            optionsPadding.PaddingRight = UDim.new(0, 4)
+            optionsPadding.Parent = optionsList_Frame
+            
+            local isOpen = false
+            
+            -- Update button text
+            local function updateText()
+                local selectedList = {}
+                for k, v in pairs(selected) do
+                    if v then table.insert(selectedList, k) end
+                end
+                
+                if #selectedList == 0 then
+                    multiDropButton.Text = "   None selected"
+                elseif #selectedList == 1 then
+                    multiDropButton.Text = "   " .. selectedList[1]
+                else
+                    multiDropButton.Text = "   " .. selectedList[1] .. " (+" .. (#selectedList - 1) .. ")"
+                end
+                
+                config:Set(key, selectedList)
+                pcall(callback, selectedList)
+            end
+            
+            -- Toggle dropdown
+            local function toggleDropdown()
+                isOpen = not isOpen
+                optionsList_Frame.Visible = isOpen
+                
+                if isOpen then
+                    createTween(optionsList_Frame, {Size = UDim2.new(1, 0, 0, #optionsList * 26 + 8)}, 0.25)
+                    createTween(arrow, {Rotation = 180}, 0.25)
+                else
+                    createTween(optionsList_Frame, {Size = UDim2.new(1, 0, 0, 0)}, 0.25).Completed:Connect(function()
+                        if not isOpen then
+                            optionsList_Frame.Visible = false
+                        end
+                    end)
+                    createTween(arrow, {Rotation = 0}, 0.25)
+                end
+            end
+            
+            multiDropButton.MouseButton1Click:Connect(toggleDropdown)
+            
+            -- Create option buttons with checkboxes
+            for _, option in ipairs(optionsList) do
+                local optionFrame = createFrame({
+                    BackgroundColor = Theme.ElementBackground,
+                    Size = UDim2.new(1, 0, 0, 24),
+                    Parent = optionsList_Frame,
+                })
+                createCorner(optionFrame, 4)
+                
+                -- Checkbox
+                local checkbox = createFrame({
+                    BackgroundColor = Theme.ElementBackground,
+                    Size = UDim2.new(0, 16, 0, 16),
+                    Position = UDim2.new(0, 6, 0, 4),
+                    Parent = optionFrame,
+                })
+                createCorner(checkbox, 3)
+                createStroke(checkbox, Theme.ElementBorder, 1)
+                
+                -- Checkmark
+                local checkmark = createTextLabel(checkbox, "✓", 12)
+                checkmark.Size = UDim2.new(1, 0, 1, 0)
+                checkmark.TextXAlignment = Enum.TextXAlignment.Center
+                checkmark.TextColor3 = Theme.Accent
+                checkmark.Visible = selected[option] or false
+                
+                -- Option label
+                local optionLabel = createTextLabel(optionFrame, option, 11)
+                optionLabel.Position = UDim2.new(0, 28, 0, 0)
+                optionLabel.Size = UDim2.new(1, -30, 1, 0)
+                optionLabel.Font = Enum.Font.Gotham
+                
+                -- Button overlay
+                local optionButton = Instance.new("TextButton")
+                optionButton.BackgroundTransparency = 1
+                optionButton.Size = UDim2.new(1, 0, 1, 0)
+                optionButton.Text = ""
+                optionButton.Parent = optionFrame
+                
+                optionButton.MouseEnter:Connect(function()
+                    createTween(optionFrame, {BackgroundColor3 = Theme.ElementBackgroundHover}, 0.15)
+                end)
+                
+                optionButton.MouseLeave:Connect(function()
+                    createTween(optionFrame, {BackgroundColor3 = Theme.ElementBackground}, 0.15)
+                end)
+                
+                optionButton.MouseButton1Click:Connect(function()
+                    selected[option] = not selected[option]
+                    checkmark.Visible = selected[option]
+                    updateText()
+                end)
+            end
+            
+            updateText()
+            
+            return {
+                Set = function(values)
+                    selected = {}
+                    for _, v in ipairs(values) do
+                        selected[v] = true
+                    end
+                    updateText()
+                end,
+                Get = function()
+                    local result = {}
+                    for k, v in pairs(selected) do
+                        if v then table.insert(result, k) end
+                    end
+                    return result
+                end
+            }
+        end
+        
+        -- ═══════════════════════════════════════════════════════════════════════
+        -- COMPONENT 10: TEXTBOX
+        -- ═══════════════════════════════════════════════════════════════════════
+        
+        --[[
+            Add a text input box
+            
+            Parameters:
+                options: Table with keys:
+                    - Label: TextBox label (string)
+                    - Key: Config key for auto-save (string, optional)
+                    - Default: Default text (string, optional)
+                    - Placeholder: Placeholder text (string, optional)
+                    - Callback: Function called when text changes
+            
+            Returns:
+                TextBox object with methods:
+                    - SetText(text): Set textbox content
+                    - GetText(): Get current text
+        ]]
+        function tab:AddTextBox(options)
+            local label = options.Label or "TextBox"
+            local key = options.Key or label:gsub("%s+", "_"):lower()
+            local default = options.Default or ""
+            local placeholder = options.Placeholder or "Enter text..."
+            local callback = options.Callback or function() end
+            
+            -- Get saved value
+            local savedValue = config:Get(key, default)
+            
+            local textBoxFrame = createFrame({
+                BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
+                Size = UDim2.new(1, 0, 0, 60),
+                Parent = tabFrame,
+            })
+            textBoxFrame.BackgroundTransparency = 1
+            
+            -- Label
+            local textBoxLabel = createTextLabel(textBoxFrame, label, 13)
+            textBoxLabel.Position = UDim2.new(0, 0, 0, 2)
+            textBoxLabel.Size = UDim2.new(1, 0, 0, 18)
+            
+            -- TextBox
+            local textBox = Instance.new("TextBox")
+            textBox.BackgroundColor3 = Theme.ElementBackground
+            textBox.BorderSizePixel = 0
+            textBox.Size = UDim2.new(1, 0, 0, 32)
+            textBox.Position = UDim2.new(0, 0, 0, 24)
+            textBox.Text = savedValue
+            textBox.PlaceholderText = placeholder
+            textBox.Font = Enum.Font.Gotham
+            textBox.TextSize = 12
+            textBox.TextColor3 = Theme.TextPrimary
+            textBox.PlaceholderColor3 = Theme.TextDark
+            textBox.ClearTextOnFocus = false
+            textBox.Parent = textBoxFrame
+            createCorner(textBox, 6)
+            createStroke(textBox, Theme.ElementBorder, 1)
+            
+            local textBoxPadding = Instance.new("UIPadding")
+            textBoxPadding.PaddingLeft = UDim.new(0, 10)
+            textBoxPadding.PaddingRight = UDim.new(0, 10)
+            textBoxPadding.Parent = textBox
+            
+            textBox.FocusLost:Connect(function()
+                config:Set(key, textBox.Text)
+                pcall(callback, textBox.Text)
+            end)
+            
+            return {
+                SetText = function(text)
+                    textBox.Text = text
+                    config:Set(key, text)
+                end,
+                GetText = function()
+                    return textBox.Text
+                end
+            }
+        end
+        
+        -- ═══════════════════════════════════════════════════════════════════════
+        -- COMPONENT 11: STATUS LABEL
+        -- ═══════════════════════════════════════════════════════════════════════
+        
+        --[[
+            Add a status label (label with dynamic value on the right)
+            
+            Parameters:
+                options: Table with keys:
+                    - Label: Label text (string)
+                    - Value: Initial value (string or number)
+            
+            Returns:
+                StatusLabel object with methods:
+                    - SetValue(value): Update the value display
+                    - GetValue(): Get current value
+        ]]
+        function tab:AddStatusLabel(options)
+            local label = options.Label or "Status"
+            local value = options.Value or "0"
+            
+            local statusFrame = createFrame({
+                BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
+                Size = UDim2.new(1, 0, 0, 30),
+                Parent = tabFrame,
+            })
+            statusFrame.BackgroundTransparency = 1
+            
+            -- Label
+            local statusLabel = createTextLabel(statusFrame, label, 13)
+            statusLabel.Position = UDim2.new(0, 0, 0, 6)
+            statusLabel.Size = UDim2.new(0.6, 0, 1, -6)
+            
+            -- Value label
+            local valueLabel = createTextLabel(statusFrame, tostring(value), 13)
+            valueLabel.Position = UDim2.new(0.6, 0, 0, 6)
+            valueLabel.Size = UDim2.new(0.4, 0, 1, -6)
+            valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+            valueLabel.TextColor3 = Theme.Accent
+            
+            return {
+                SetValue = function(newValue)
+                    valueLabel.Text = tostring(newValue)
+                end,
+                GetValue = function()
+                    return valueLabel.Text
+                end
+            }
+        end
+        
+        -- ═══════════════════════════════════════════════════════════════════════
+        -- COMPONENT 12: PROGRESS BAR
+        -- ═══════════════════════════════════════════════════════════════════════
+        
+        --[[
+            Add a progress bar
+            
+            Parameters:
+                options: Table with keys:
+                    - Label: Progress bar label (string)
+                    - Key: Config key for auto-save (string, optional)
+                    - Max: Maximum value (number, default: 100)
+                    - Value: Initial value (number, default: 0)
+                    - Callback: Function called when value changes
+            
+            Returns:
+                ProgressBar object with methods:
+                    - Set(value): Set progress value
+                    - Get(): Get current value
+                    - SetMax(max): Set maximum value
+                    - GetValue(): Get current value (alias)
+        ]]
+        function tab:AddProgressBar(options)
+            local label = options.Label or "Progress"
+            local key = options.Key or label:gsub("%s+", "_"):lower()
+            local max = options.Max or 100
+            local value = options.Value or 0
+            local callback = options.Callback or function() end
+            
+            -- Get saved value
+            local savedValue = config:Get(key, value)
+            
+            local progressFrame = createFrame({
+                BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
+                Size = UDim2.new(1, 0, 0, 50),
+                Parent = tabFrame,
+            })
+            progressFrame.BackgroundTransparency = 1
+            
+            -- Label
+            local progressLabel = createTextLabel(progressFrame, label, 13)
+            progressLabel.Position = UDim2.new(0, 0, 0, 2)
+            progressLabel.Size = UDim2.new(0.7, 0, 0, 18)
+            
+            -- Value label
+            local valueLabel = createTextLabel(progressFrame, tostring(savedValue) .. "/" .. tostring(max), 13)
+            valueLabel.Position = UDim2.new(0.7, 0, 0, 2)
+            valueLabel.Size = UDim2.new(0.3, 0, 0, 18)
+            valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+            valueLabel.TextColor3 = Theme.Accent
+            
+            -- Progress bar background
+            local progressBg = createFrame({
+                BackgroundColor = Theme.ElementBackground,
+                Size = UDim2.new(1, -10, 0, 12),
+                Position = UDim2.new(0, 5, 0, 28),
+                Parent = progressFrame,
+            })
+            createCorner(progressBg, 6)
+            createStroke(progressBg, Theme.ElementBorder, 1)
+            
+            -- Progress fill
+            local progressFill = createFrame({
+                BackgroundColor = Theme.Accent,
+                Size = UDim2.new(0, 0, 1, 0),
+                Parent = progressBg,
+            })
+            createCorner(progressFill, 6)
+            
+            local currentValue = savedValue
+            local currentMax = max
+            
+            -- Update visual
+            local function updateVisual()
+                local percent = math.clamp(currentValue / currentMax, 0, 1)
+                progressFill.Size = UDim2.new(percent, 0, 1, 0)
+                valueLabel.Text = tostring(currentValue) .. "/" .. tostring(currentMax)
+            end
+            
+            updateVisual()
+            
+            -- Set value function
+            local function setValue(newValue)
+                currentValue = math.clamp(newValue, 0, currentMax)
+                updateVisual()
+                config:Set(key, currentValue)
+                pcall(callback, currentValue)
+            end
+            
+            return {
+                Set = setValue,
+                Get = function()
+                    return currentValue
+                end,
+                SetMax = function(newMax)
+                    currentMax = newMax
+                    updateVisual()
+                end,
+                GetValue = function()
+                    return currentValue
+                end
+            }
+        end
+        
+        -- ═══════════════════════════════════════════════════════════════════════
+        -- COMPONENT 13: KEYBIND
+        -- ═══════════════════════════════════════════════════════════════════════
+        
+        --[[
+            Add a keybind selector
+            
+            Parameters:
+                options: Table with keys:
+                    - Label: Keybind label (string)
+                    - Key: Config key for auto-save (string, optional)
+                    - Default: Default key (string or Enum.KeyCode, default: "None")
+                    - Callback: Function called when key is pressed
+            
+            Returns:
+                Keybind object with methods:
+                    - Set(key): Set keybind
+                    - Get(): Get current key
+        ]]
+        function tab:AddKeybind(options)
+            local label = options.Label or "Keybind"
+            local key = options.Key or label:gsub("%s+", "_"):lower()
+            local default = options.Default or "None"
+            local callback = options.Callback or function() end
+            
+            -- Convert Enum to string if needed
+            if type(default) == "userdata" then
+                default = default.Name
+            end
+            
+            -- Get saved value
+            local savedValue = config:Get(key, default)
+            
+            local keybindFrame = createFrame({
+                BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
+                Size = UDim2.new(1, 0, 0, 36),
+                Parent = tabFrame,
+            })
+            keybindFrame.BackgroundTransparency = 1
+            
+            -- Label
+            local keybindLabel = createTextLabel(keybindFrame, label, 13)
+            keybindLabel.Position = UDim2.new(0, 0, 0, 8)
+            keybindLabel.Size = UDim2.new(1, -120, 1, -8)
+            
+            -- Keybind button
+            local keybindButton = Instance.new("TextButton")
+            keybindButton.BackgroundColor3 = Theme.ElementBackground
+            keybindButton.BorderSizePixel = 0
+            keybindButton.Size = UDim2.new(0, 100, 0, 28)
+            keybindButton.Position = UDim2.new(1, -110, 0, 4)
+            keybindButton.Text = savedValue
+            keybindButton.Font = Enum.Font.GothamSemibold
+            keybindButton.TextSize = 12
+            keybindButton.TextColor3 = Theme.Accent
+            keybindButton.AutoButtonColor = false
+            keybindButton.Parent = keybindFrame
+            createCorner(keybindButton, 6)
+            createStroke(keybindButton, Theme.ElementBorder, 1)
+            
+            local currentKey = savedValue
+            local waiting = false
+            
+            -- Set key function
+            local function setKey(keyName)
+                currentKey = keyName
+                keybindButton.Text = keyName
+                config:Set(key, currentKey)
+            end
+            
+            -- Button click to start listening
+            keybindButton.MouseButton1Click:Connect(function()
+                if waiting then return end
+                
+                waiting = true
+                keybindButton.Text = "..."
+                
+                local connection
+                connection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+                    if gameProcessed then return end
+                    
+                    if input.UserInputType == Enum.UserInputType.Keyboard then
+                        local keyName = input.KeyCode.Name
+                        setKey(keyName)
+                        waiting = false
+                        connection:Disconnect()
+                    end
+                end)
+            end)
+            
+            -- Listen for key press
+            UserInputService.InputBegan:Connect(function(input, gameProcessed)
+                if gameProcessed or waiting then return end
+                
+                if input.KeyCode.Name == currentKey then
+                    pcall(callback)
+                end
+            end)
+            
+            return {
+                Set = setKey,
+                Get = function()
+                    return currentKey
+                end
+            }
+        end
+        
+        -- ═══════════════════════════════════════════════════════════════════════
+        -- END OF ALL 13 COMPONENTS
+        -- (Component 14 is Notification System, already implemented above)
+        -- ═══════════════════════════════════════════════════════════════════════
+        
+        table.insert(window._tabs, tab)
+        return tab
+    end
+    
+    return window
+end
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- END OF KAPAO UI LIBRARY
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+return KapaoUI
