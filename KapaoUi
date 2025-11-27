@@ -1960,10 +1960,14 @@ function KapaoUI:CreateWindow(options)
             arrow.TextColor3 = Theme.Accent
             
             -- Overlay for click outside to close (Dropdown)
-            local dropdownOverlay = Instance.new("Frame")
+            local dropdownOverlay = Instance.new("TextButton")
             dropdownOverlay.BackgroundTransparency = 1
             dropdownOverlay.Size = UDim2.new(1, 0, 1, 0)
             dropdownOverlay.Position = UDim2.new(0, 0, 0, 0)
+            dropdownOverlay.Text = ""
+            dropdownOverlay.BorderSizePixel = 0
+            dropdownOverlay.AutoButtonColor = false
+            dropdownOverlay.Active = true
             dropdownOverlay.Visible = false
             dropdownOverlay.ZIndex = 999
             dropdownOverlay.Parent = mainWindow.Parent
@@ -2024,9 +2028,10 @@ function KapaoUI:CreateWindow(options)
                 optionsList_Frame.Visible = isOpen
                 
                 if isOpen then
-                    -- Update position and calculate size (max height: 200px)
-                    local calculatedHeight = #optionsList * 26 + 8
-                    local maxHeight = 200
+                    -- Update position and calculate size (max height: 250px)
+                    -- Each option: 24px height + 2px spacing (except last)
+                    local calculatedHeight = (#optionsList * 24) + ((#optionsList - 1) * 2) + 8
+                    local maxHeight = 250
                     local finalHeight = math.min(calculatedHeight, maxHeight)
                     
                     optionsList_Frame.Position = UDim2.new(0, dropdownButton.AbsolutePosition.X, 0, dropdownButton.AbsolutePosition.Y + 36)
@@ -2044,8 +2049,8 @@ function KapaoUI:CreateWindow(options)
             end
             
             -- Close on overlay click
-            dropdownOverlay.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 and isOpen then
+            dropdownOverlay.MouseButton1Click:Connect(function()
+                if isOpen then
                     toggleDropdown()
                 end
             end)
@@ -2179,10 +2184,14 @@ function KapaoUI:CreateWindow(options)
             arrow.TextColor3 = Theme.Accent
             
             -- Overlay for click outside to close (MultiDropdown)
-            local multiDropOverlay = Instance.new("Frame")
+            local multiDropOverlay = Instance.new("TextButton")
             multiDropOverlay.BackgroundTransparency = 1
             multiDropOverlay.Size = UDim2.new(1, 0, 1, 0)
             multiDropOverlay.Position = UDim2.new(0, 0, 0, 0)
+            multiDropOverlay.Text = ""
+            multiDropOverlay.BorderSizePixel = 0
+            multiDropOverlay.AutoButtonColor = false
+            multiDropOverlay.Active = true
             multiDropOverlay.Visible = false
             multiDropOverlay.ZIndex = 999
             multiDropOverlay.Parent = mainWindow.Parent
@@ -2261,9 +2270,10 @@ function KapaoUI:CreateWindow(options)
                 optionsList_Frame.Visible = isOpen
                 
                 if isOpen then
-                    -- Update position and calculate size (max height: 200px)
-                    local calculatedHeight = #optionsList * 26 + 8
-                    local maxHeight = 200
+                    -- Update position and calculate size (max height: 250px)
+                    -- Each option: 24px height + 2px spacing (except last)
+                    local calculatedHeight = (#optionsList * 24) + ((#optionsList - 1) * 2) + 8
+                    local maxHeight = 250
                     local finalHeight = math.min(calculatedHeight, maxHeight)
                     
                     optionsList_Frame.Position = UDim2.new(0, multiDropButton.AbsolutePosition.X, 0, multiDropButton.AbsolutePosition.Y + 36)
@@ -2281,8 +2291,8 @@ function KapaoUI:CreateWindow(options)
             end
             
             -- Close on overlay click
-            multiDropOverlay.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 and isOpen then
+            multiDropOverlay.MouseButton1Click:Connect(function()
+                if isOpen then
                     toggleDropdown()
                 end
             end)
