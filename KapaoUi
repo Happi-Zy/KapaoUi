@@ -674,14 +674,30 @@ function KapaoUI:CreateWindow(options)
     -- Create notification system
     local notificationSystem = NotificationSystem:Create(rootGui)
     
+    -- Global dropdown manager (prevent multiple dropdowns open)
+    local activeDropdown = nil
+    local function closeActiveDropdown()
+        if activeDropdown and activeDropdown.close then
+            activeDropdown.close()
+        end
+    end
+    
+    -- Mobile detection
+    local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+    local scaleFactor = isMobile and 1.2 or 1.0
+    
     -- ═══════════════════════════════════════════════════════════════════════════
     -- MAIN WINDOW FRAME
     -- ═══════════════════════════════════════════════════════════════════════════
     
+    -- Responsive sizing for mobile
+    local windowWidth = isMobile and 340 or 680
+    local windowHeight = isMobile and 500 or 450
+    
     local mainWindow = createFrame({
         BackgroundColor = Theme.WindowBackground,
-        Size = UDim2.new(0, 680, 0, 450),
-        Position = UDim2.new(0.5, -340, 0.5, -225),
+        Size = UDim2.new(0, windowWidth, 0, windowHeight),
+        Position = UDim2.new(0.5, -windowWidth/2, 0.5, -windowHeight/2),
         Parent = rootGui,
     })
     mainWindow.Name = "KapaoWindow"
@@ -1833,9 +1849,24 @@ function KapaoUI:CreateWindow(options)
                 if enterPressed then
                     local inputValue = tonumber(valueInput.Text)
                     if inputValue then
-                        setValue(inputValue)
+                        -- Validate range
+                        if inputValue < min or inputValue > max then
+                            notificationSystem:Notify({
+                                Title = "Invalid Input",
+                                Description = "Value must be between " .. min .. " and " .. max,
+                                Type = "Error",
+                            })
+                            updateVisual()
+                        else
+                            setValue(inputValue)
+                        end
                     else
-                        -- Invalid input, reset to current value
+                        -- Not a number
+                        notificationSystem:Notify({
+                            Title = "Invalid Input",
+                            Description = "Please enter a valid number",
+                            Type = "Error",
+                        })
                         updateVisual()
                     end
                 end
@@ -1844,17 +1875,17 @@ function KapaoUI:CreateWindow(options)
             local dragging = false
             
             sliderBg.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     dragging = true
                     createTween(knobGlow, {Thickness = 4}, 0.2)
-                    local mousePos = UserInputService:GetMouseLocation()
+                    local mousePos = input.UserInputType == Enum.UserInputType.Touch and input.Position or UserInputService:GetMouseLocation()
                     local percent = math.clamp((mousePos.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
                     setValue(min + (max - min) * percent)
                 end
             end)
             
             sliderBg.InputEnded:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     dragging = false
                     createTween(knobGlow, {Thickness = 0}, 0.2)
                 end
@@ -1871,8 +1902,8 @@ function KapaoUI:CreateWindow(options)
             end)
             
             UserInputService.InputChanged:Connect(function(input)
-                if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-                    local mousePos = UserInputService:GetMouseLocation()
+                if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                    local mousePos = input.UserInputType == Enum.UserInputType.Touch and input.Position or UserInputService:GetMouseLocation()
                     local percent = math.clamp((mousePos.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
                     setValue(min + (max - min) * percent)
                 end
@@ -2021,15 +2052,37 @@ function KapaoUI:CreateWindow(options)
             local selected = default
             local isOpen = false
             
+            -- Close function for global manager
+            local function closeDropdown()
+                if not isOpen then return end
+                isOpen = false
+                dropdownOverlay.Visible = false
+                createTween(optionsList_Frame, {Size = UDim2.new(0, dropdownButton.AbsoluteSize.X, 0, 0)}, 0.25).Completed:Connect(function()
+                    optionsList_Frame.Visible = false
+                end)
+                createTween(arrow, {Rotation = 0}, 0.25)
+                if activeDropdown == dropdownObj then
+                    activeDropdown = nil
+                end
+            end
+            
+            -- Dropdown object for global manager
+            local dropdownObj = {close = closeDropdown}
+            
             -- Toggle dropdown (Dropdown)
             local function toggleDropdown()
-                isOpen = not isOpen
-                dropdownOverlay.Visible = isOpen
-                optionsList_Frame.Visible = isOpen
-                
                 if isOpen then
+                    closeDropdown()
+                else
+                    -- Close any active dropdown first
+                    closeActiveDropdown()
+                    
+                    isOpen = true
+                    activeDropdown = dropdownObj
+                    dropdownOverlay.Visible = true
+                    optionsList_Frame.Visible = true
+                    
                     -- Update position and calculate size (max height: 250px)
-                    -- Each option: 24px height + 2px spacing (except last)
                     local calculatedHeight = (#optionsList * 24) + ((#optionsList - 1) * 2) + 8
                     local maxHeight = 250
                     local finalHeight = math.min(calculatedHeight, maxHeight)
@@ -2037,25 +2090,27 @@ function KapaoUI:CreateWindow(options)
                     optionsList_Frame.Position = UDim2.new(0, dropdownButton.AbsolutePosition.X, 0, dropdownButton.AbsolutePosition.Y + 36)
                     createTween(optionsList_Frame, {Size = UDim2.new(0, dropdownButton.AbsoluteSize.X, 0, finalHeight)}, 0.25)
                     createTween(arrow, {Rotation = 180}, 0.25)
-                else
-                    createTween(optionsList_Frame, {Size = UDim2.new(0, dropdownButton.AbsoluteSize.X, 0, 0)}, 0.25).Completed:Connect(function()
-                        if not isOpen then
-                            dropdownOverlay.Visible = false
-                            optionsList_Frame.Visible = false
-                        end
-                    end)
-                    createTween(arrow, {Rotation = 0}, 0.25)
                 end
             end
             
-            -- Close on overlay click
+            -- Close on overlay click (Mouse + Touch)
             dropdownOverlay.MouseButton1Click:Connect(function()
                 if isOpen then
-                    toggleDropdown()
+                    closeDropdown()
+                end
+            end)
+            
+            -- Touch support for overlay
+            dropdownOverlay.TouchTap:Connect(function()
+                if isOpen then
+                    closeDropdown()
                 end
             end)
             
             dropdownButton.MouseButton1Click:Connect(toggleDropdown)
+            
+            -- Touch support for button
+            dropdownButton.TouchTap:Connect(toggleDropdown)
             
             -- Create option buttons
             for _, option in ipairs(optionsList) do
@@ -2086,7 +2141,16 @@ function KapaoUI:CreateWindow(options)
                     dropdownButton.Text = "   " .. option
                     config:Set(key, selected)
                     pcall(callback, selected)
-                    toggleDropdown()
+                    closeDropdown()
+                end)
+                
+                -- Touch support for option
+                optionButton.TouchTap:Connect(function()
+                    selected = option
+                    dropdownButton.Text = "   " .. option
+                    config:Set(key, selected)
+                    pcall(callback, selected)
+                    closeDropdown()
                 end)
             end
             
@@ -2244,6 +2308,23 @@ function KapaoUI:CreateWindow(options)
             
             local isOpen = false
             
+            -- Close function for global manager
+            local function closeMultiDropdown()
+                if not isOpen then return end
+                isOpen = false
+                multiDropOverlay.Visible = false
+                createTween(optionsList_Frame, {Size = UDim2.new(0, multiDropButton.AbsoluteSize.X, 0, 0)}, 0.25).Completed:Connect(function()
+                    optionsList_Frame.Visible = false
+                end)
+                createTween(arrow, {Rotation = 0}, 0.25)
+                if activeDropdown == multiDropObj then
+                    activeDropdown = nil
+                end
+            end
+            
+            -- MultiDropdown object for global manager
+            local multiDropObj = {close = closeMultiDropdown}
+            
             -- Update button text
             local function updateText()
                 local selectedList = {}
@@ -2265,13 +2346,18 @@ function KapaoUI:CreateWindow(options)
             
             -- Toggle dropdown (MultiDropdown)
             local function toggleDropdown()
-                isOpen = not isOpen
-                multiDropOverlay.Visible = isOpen
-                optionsList_Frame.Visible = isOpen
-                
                 if isOpen then
+                    closeMultiDropdown()
+                else
+                    -- Close any active dropdown first
+                    closeActiveDropdown()
+                    
+                    isOpen = true
+                    activeDropdown = multiDropObj
+                    multiDropOverlay.Visible = true
+                    optionsList_Frame.Visible = true
+                    
                     -- Update position and calculate size (max height: 250px)
-                    -- Each option: 24px height + 2px spacing (except last)
                     local calculatedHeight = (#optionsList * 24) + ((#optionsList - 1) * 2) + 8
                     local maxHeight = 250
                     local finalHeight = math.min(calculatedHeight, maxHeight)
@@ -2279,25 +2365,27 @@ function KapaoUI:CreateWindow(options)
                     optionsList_Frame.Position = UDim2.new(0, multiDropButton.AbsolutePosition.X, 0, multiDropButton.AbsolutePosition.Y + 36)
                     createTween(optionsList_Frame, {Size = UDim2.new(0, multiDropButton.AbsoluteSize.X, 0, finalHeight)}, 0.25)
                     createTween(arrow, {Rotation = 180}, 0.25)
-                else
-                    createTween(optionsList_Frame, {Size = UDim2.new(0, multiDropButton.AbsoluteSize.X, 0, 0)}, 0.25).Completed:Connect(function()
-                        if not isOpen then
-                            multiDropOverlay.Visible = false
-                            optionsList_Frame.Visible = false
-                        end
-                    end)
-                    createTween(arrow, {Rotation = 0}, 0.25)
                 end
             end
             
-            -- Close on overlay click
+            -- Close on overlay click (Mouse + Touch)
             multiDropOverlay.MouseButton1Click:Connect(function()
                 if isOpen then
-                    toggleDropdown()
+                    closeMultiDropdown()
+                end
+            end)
+            
+            -- Touch support for overlay
+            multiDropOverlay.TouchTap:Connect(function()
+                if isOpen then
+                    closeMultiDropdown()
                 end
             end)
             
             multiDropButton.MouseButton1Click:Connect(toggleDropdown)
+            
+            -- Touch support for button
+            multiDropButton.TouchTap:Connect(toggleDropdown)
             
             -- Create option buttons with checkboxes
             for _, option in ipairs(optionsList) do
