@@ -796,8 +796,8 @@ function KapaoUI:CreateWindow(options)
     local toggleButton = Instance.new("TextButton")
     toggleButton.BackgroundColor3 = Theme.ElementBackground
     toggleButton.BorderSizePixel = 0
-    toggleButton.Size = UDim2.new(0, 40, 0, 140)
-    toggleButton.Position = UDim2.new(1, -50, 0.5, -70)
+    toggleButton.Size = UDim2.new(0, 130, 0, 45)
+    toggleButton.Position = UDim2.new(1, -140, 0.5, -22.5)
     toggleButton.Text = "Kapao Hub"
     toggleButton.Font = Enum.Font.GothamBold
     toggleButton.TextSize = 14
@@ -806,13 +806,14 @@ function KapaoUI:CreateWindow(options)
     toggleButton.Visible = false
     toggleButton.ZIndex = 1000
     toggleButton.Parent = rootGui
-    toggleButton.Rotation = 90
     createCorner(toggleButton, 12)
     
     -- Add padding to toggle button text
     local togglePadding = Instance.new("UIPadding")
     togglePadding.PaddingTop = UDim.new(0, 8)
     togglePadding.PaddingBottom = UDim.new(0, 8)
+    togglePadding.PaddingLeft = UDim.new(0, 12)
+    togglePadding.PaddingRight = UDim.new(0, 12)
     togglePadding.Parent = toggleButton
     
     -- Border stroke for toggle button
@@ -855,15 +856,15 @@ function KapaoUI:CreateWindow(options)
             }, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In).Completed:Connect(function()
                 mainWindow.Visible = false
                 toggleButton.Visible = true
-                toggleButton.Position = UDim2.new(1, 0, 0.5, -70)
+                toggleButton.Position = UDim2.new(1, 0, 0.5, -22.5)
                 createTween(toggleButton, {
-                    Position = UDim2.new(1, -50, 0.5, -70)
+                    Position = UDim2.new(1, -140, 0.5, -22.5)
                 }, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
             end)
         else
             -- Slide out toggle tab and show main window
             createTween(toggleButton, {
-                Position = UDim2.new(1, 0, 0.5, -70)
+                Position = UDim2.new(1, 0, 0.5, -22.5)
             }, 0.2, Enum.EasingStyle.Back, Enum.EasingDirection.In).Completed:Connect(function()
                 toggleButton.Visible = false
                 mainWindow.Visible = true
@@ -881,7 +882,7 @@ function KapaoUI:CreateWindow(options)
     toggleButton.MouseButton1Click:Connect(function()
         isMinimized = false
         createTween(toggleButton, {
-            Position = UDim2.new(1, 0, 0.5, -70)
+            Position = UDim2.new(1, 0, 0.5, -22.5)
         }, 0.2, Enum.EasingStyle.Back, Enum.EasingDirection.In).Completed:Connect(function()
             toggleButton.Visible = false
             mainWindow.Visible = true
@@ -897,8 +898,8 @@ function KapaoUI:CreateWindow(options)
     -- Hover effects for toggle button (tab style)
     toggleButton.MouseEnter:Connect(function()
         createTween(toggleButton, {
-            Size = UDim2.new(0, 50, 0, 150),
-            Position = UDim2.new(1, -60, 0.5, -75)
+            Size = UDim2.new(0, 145, 0, 50),
+            Position = UDim2.new(1, -155, 0.5, -25)
         }, 0.2, Enum.EasingStyle.Quad)
         createTween(toggleGlow, {Thickness = 4, Transparency = 0}, 0.2)
         createTween(toggleButton, {BackgroundColor3 = Theme.ElementBackgroundHover}, 0.2)
@@ -906,8 +907,8 @@ function KapaoUI:CreateWindow(options)
     
     toggleButton.MouseLeave:Connect(function()
         createTween(toggleButton, {
-            Size = UDim2.new(0, 40, 0, 140),
-            Position = UDim2.new(1, -50, 0.5, -70)
+            Size = UDim2.new(0, 130, 0, 45),
+            Position = UDim2.new(1, -140, 0.5, -22.5)
         }, 0.2, Enum.EasingStyle.Quad)
         createTween(toggleGlow, {Thickness = 3, Transparency = 0.3}, 0.2)
         createTween(toggleButton, {BackgroundColor3 = Theme.ElementBackground}, 0.2)
