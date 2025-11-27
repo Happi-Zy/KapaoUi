@@ -6,7 +6,8 @@
 ]]
 
 print("🔄 Loading KapaoUI...")
-local KapaoUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Happi-Zy/KapaoUi/refs/heads/main/KapaoUi"))()
+-- Using commit hash to bypass GitHub cache
+local KapaoUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Happi-Zy/KapaoUi/6ae14de/KapaoUi"))()
 
 print("✅ Creating Window...")
 local Window = KapaoUI:CreateWindow({
