@@ -1612,13 +1612,25 @@ function KapaoUI:CreateWindow(options)
             sliderLabel.Position = UDim2.new(0, 0, 0, 2)
             sliderLabel.Size = UDim2.new(0.7, 0, 0, 18)
             
-            -- Value label (ensure it's always visible)
-            local valueLabel = createTextLabel(sliderFrame, tostring(default), 13)
-            valueLabel.Position = UDim2.new(1, -55, 0, 2)
-            valueLabel.Size = UDim2.new(0, 50, 0, 18)
-            valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+            -- Value label background for visibility
+            local valueBg = createFrame({
+                BackgroundColor = Theme.ElementBackground,
+                Size = UDim2.new(0, 50, 0, 20),
+                Position = UDim2.new(1, -55, 0, 1),
+                Parent = sliderFrame,
+            })
+            valueBg.ZIndex = 3
+            createCorner(valueBg, 6)
+            createStroke(valueBg, Theme.ElementBorder, 1)
+            
+            -- Value label (on top of background)
+            local valueLabel = createTextLabel(valueBg, tostring(default), 13)
+            valueLabel.Position = UDim2.new(0, 0, 0, 0)
+            valueLabel.Size = UDim2.new(1, 0, 1, 0)
+            valueLabel.TextXAlignment = Enum.TextXAlignment.Center
             valueLabel.TextColor3 = Theme.Accent
-            valueLabel.ZIndex = 3
+            valueLabel.ZIndex = 4
+            valueLabel.BackgroundTransparency = 1
             
             -- Slider background (leave space for value label)
             local sliderBg = createFrame({
