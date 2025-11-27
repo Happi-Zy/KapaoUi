@@ -699,6 +699,9 @@ function KapaoUI:CreateWindow(options)
     gradientBg.BorderSizePixel = 0
     gradientBg.Parent = mainWindow
     
+    -- Add corner radius to match main window
+    createCorner(gradientBg, 12)
+    
     local gradient = Instance.new("UIGradient")
     gradient.Color = ColorSequence.new{
         ColorSequenceKeypoint.new(0, Color3.fromRGB(6, 10, 18)),
@@ -721,6 +724,9 @@ function KapaoUI:CreateWindow(options)
     borderFrame.ZIndex = 10
     borderFrame.Parent = mainWindow
     
+    -- Add corner radius to border frame so stroke is rounded
+    createCorner(borderFrame, 12)
+    
     local borderStroke = createStroke(borderFrame, Theme.ElementBorder, 2)
     
     -- Breathing animation loop
@@ -742,6 +748,7 @@ function KapaoUI:CreateWindow(options)
         Size = UDim2.new(1, 0, 0, 55),
         Parent = mainWindow,
     })
+    createCorner(topBar, 12)
     createStroke(topBar, Theme.Accent, 0)
     
     -- Accent line under top bar
