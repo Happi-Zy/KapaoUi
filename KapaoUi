@@ -1959,6 +1959,15 @@ function KapaoUI:CreateWindow(options)
             arrow.TextXAlignment = Enum.TextXAlignment.Center
             arrow.TextColor3 = Theme.Accent
             
+            -- Overlay for click outside to close (Dropdown)
+            local dropdownOverlay = Instance.new("Frame")
+            dropdownOverlay.BackgroundTransparency = 1
+            dropdownOverlay.Size = UDim2.new(1, 0, 1, 0)
+            dropdownOverlay.Position = UDim2.new(0, 0, 0, 0)
+            dropdownOverlay.Visible = false
+            dropdownOverlay.ZIndex = 999
+            dropdownOverlay.Parent = mainWindow.Parent
+            
             -- Options list (parent to ScreenGui to avoid ALL clipping) - ScrollingFrame for Dropdown
             local optionsList_Frame = Instance.new("ScrollingFrame")
             optionsList_Frame.BackgroundColor3 = Theme.ElementBackground
@@ -1970,7 +1979,7 @@ function KapaoUI:CreateWindow(options)
             optionsList_Frame.CanvasSize = UDim2.new(0, 0, 0, 0)
             optionsList_Frame.AutomaticCanvasSize = Enum.AutomaticSize.Y
             optionsList_Frame.ScrollingDirection = Enum.ScrollingDirection.Y
-            optionsList_Frame.ClipsDescendants = false
+            optionsList_Frame.ClipsDescendants = true
             optionsList_Frame.Active = true
             optionsList_Frame.Visible = false
             optionsList_Frame.ZIndex = 1000
@@ -2011,6 +2020,7 @@ function KapaoUI:CreateWindow(options)
             -- Toggle dropdown (Dropdown)
             local function toggleDropdown()
                 isOpen = not isOpen
+                dropdownOverlay.Visible = isOpen
                 optionsList_Frame.Visible = isOpen
                 
                 if isOpen then
@@ -2025,12 +2035,20 @@ function KapaoUI:CreateWindow(options)
                 else
                     createTween(optionsList_Frame, {Size = UDim2.new(0, dropdownButton.AbsoluteSize.X, 0, 0)}, 0.25).Completed:Connect(function()
                         if not isOpen then
+                            dropdownOverlay.Visible = false
                             optionsList_Frame.Visible = false
                         end
                     end)
                     createTween(arrow, {Rotation = 0}, 0.25)
                 end
             end
+            
+            -- Close on overlay click
+            dropdownOverlay.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 and isOpen then
+                    toggleDropdown()
+                end
+            end)
             
             dropdownButton.MouseButton1Click:Connect(toggleDropdown)
             
@@ -2160,6 +2178,15 @@ function KapaoUI:CreateWindow(options)
             arrow.TextXAlignment = Enum.TextXAlignment.Center
             arrow.TextColor3 = Theme.Accent
             
+            -- Overlay for click outside to close (MultiDropdown)
+            local multiDropOverlay = Instance.new("Frame")
+            multiDropOverlay.BackgroundTransparency = 1
+            multiDropOverlay.Size = UDim2.new(1, 0, 1, 0)
+            multiDropOverlay.Position = UDim2.new(0, 0, 0, 0)
+            multiDropOverlay.Visible = false
+            multiDropOverlay.ZIndex = 999
+            multiDropOverlay.Parent = mainWindow.Parent
+            
             -- Options list (parent to ScreenGui to avoid ALL clipping) - ScrollingFrame for MultiDropdown
             local optionsList_Frame = Instance.new("ScrollingFrame")
             optionsList_Frame.BackgroundColor3 = Theme.ElementBackground
@@ -2171,7 +2198,7 @@ function KapaoUI:CreateWindow(options)
             optionsList_Frame.CanvasSize = UDim2.new(0, 0, 0, 0)
             optionsList_Frame.AutomaticCanvasSize = Enum.AutomaticSize.Y
             optionsList_Frame.ScrollingDirection = Enum.ScrollingDirection.Y
-            optionsList_Frame.ClipsDescendants = false
+            optionsList_Frame.ClipsDescendants = true
             optionsList_Frame.Active = true
             optionsList_Frame.Visible = false
             optionsList_Frame.ZIndex = 1000
@@ -2230,6 +2257,7 @@ function KapaoUI:CreateWindow(options)
             -- Toggle dropdown (MultiDropdown)
             local function toggleDropdown()
                 isOpen = not isOpen
+                multiDropOverlay.Visible = isOpen
                 optionsList_Frame.Visible = isOpen
                 
                 if isOpen then
@@ -2244,12 +2272,20 @@ function KapaoUI:CreateWindow(options)
                 else
                     createTween(optionsList_Frame, {Size = UDim2.new(0, multiDropButton.AbsoluteSize.X, 0, 0)}, 0.25).Completed:Connect(function()
                         if not isOpen then
+                            multiDropOverlay.Visible = false
                             optionsList_Frame.Visible = false
                         end
                     end)
                     createTween(arrow, {Rotation = 0}, 0.25)
                 end
             end
+            
+            -- Close on overlay click
+            multiDropOverlay.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 and isOpen then
+                    toggleDropdown()
+                end
+            end)
             
             multiDropButton.MouseButton1Click:Connect(toggleDropdown)
             
