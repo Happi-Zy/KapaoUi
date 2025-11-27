@@ -1695,7 +1695,13 @@ function KapaoUI:CreateWindow(options)
                 -- When percent = 1: xOffset = -8 (knob stays 8px from right edge)
                 local xOffset = 8 - (percent * 16)
                 sliderKnob.Position = UDim2.new(percent, xOffset, 0.5, -8)
-                valueLabel.Text = tostring(value)
+                
+                -- Format value text: remove trailing zeros for decimals
+                local valueText = tostring(value)
+                if string.find(valueText, "%.") then
+                    valueText = valueText:gsub("%.?0+$", "")
+                end
+                valueLabel.Text = valueText
             end
             
             updateVisual()
