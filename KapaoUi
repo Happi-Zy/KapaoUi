@@ -2133,53 +2133,69 @@ function KapaoUI:CreateWindow(options)
             -- Touch support for button
             dropdownButton.TouchTap:Connect(toggleDropdown)
             
-            -- Create option buttons
-            for _, option in ipairs(optionsList) do
-                local optionButton = Instance.new("TextButton")
-                optionButton.BackgroundColor3 = Theme.ElementBackground
-                optionButton.BorderSizePixel = 0
-                optionButton.Size = UDim2.new(1, 0, 0, 24)
-                optionButton.Text = "  " .. option
-                optionButton.Font = Enum.Font.Gotham
-                optionButton.TextSize = 12
-                optionButton.TextColor3 = Theme.TextPrimary
-                optionButton.TextXAlignment = Enum.TextXAlignment.Left
-                optionButton.AutoButtonColor = false
-                optionButton.ZIndex = 1001
-                optionButton.Parent = optionsList_Frame
-                createCorner(optionButton, 6)
-                
-                optionButton.MouseEnter:Connect(function()
-                    createTween(optionButton, {BackgroundColor3 = Theme.ElementBackgroundHover}, 0.15)
-                end)
-                
-                optionButton.MouseLeave:Connect(function()
-                    createTween(optionButton, {BackgroundColor3 = Theme.ElementBackground}, 0.15)
-                end)
-                
-                optionButton.MouseButton1Click:Connect(function()
-                    selected = option
-                    dropdownButton.Text = "   " .. option
-                    config:Set(key, selected)
-                    pcall(callback, selected)
-                    closeDropdown()
-                end)
-                
-                -- Touch support for option
-                optionButton.TouchTap:Connect(function()
-                    selected = option
-                    dropdownButton.Text = "   " .. option
-                    config:Set(key, selected)
-                    pcall(callback, selected)
-                    closeDropdown()
-                end)
+            -- Helper: clear all option buttons
+            local function clearOptions()
+                for _, child in ipairs(optionsList_Frame:GetChildren()) do
+                    if child:IsA("TextButton") then
+                        child:Destroy()
+                    end
+                end
             end
+
+            -- Helper: create option buttons from optionsList
+            local function rebuildOptions()
+                clearOptions()
+
+                for _, option in ipairs(optionsList) do
+                    local optionButton = Instance.new("TextButton")
+                    optionButton.BackgroundColor3 = Theme.ElementBackground
+                    optionButton.BorderSizePixel = 0
+                    optionButton.Size = UDim2.new(1, 0, 0, 24)
+                    optionButton.Text = "  " .. option
+                    optionButton.Font = Enum.Font.Gotham
+                    optionButton.TextSize = 12
+                    optionButton.TextColor3 = Theme.TextPrimary
+                    optionButton.TextXAlignment = Enum.TextXAlignment.Left
+                    optionButton.AutoButtonColor = false
+                    optionButton.ZIndex = 1001
+                    optionButton.Parent = optionsList_Frame
+                    createCorner(optionButton, 6)
+
+                    optionButton.MouseEnter:Connect(function()
+                        createTween(optionButton, {BackgroundColor3 = Theme.ElementBackgroundHover}, 0.15)
+                    end)
+
+                    optionButton.MouseLeave:Connect(function()
+                        createTween(optionButton, {BackgroundColor3 = Theme.ElementBackground}, 0.15)
+                    end)
+
+                    optionButton.MouseButton1Click:Connect(function()
+                        selected = option
+                        dropdownButton.Text = "   " .. option
+                        config:Set(key, selected)
+                        pcall(callback, selected)
+                        closeDropdown()
+                    end)
+
+                    -- Touch support for option
+                    optionButton.TouchTap:Connect(function()
+                        selected = option
+                        dropdownButton.Text = "   " .. option
+                        config:Set(key, selected)
+                        pcall(callback, selected)
+                        closeDropdown()
+                    end)
+                end
+            end
+
+            -- สร้างตัวเลือกเริ่มต้น
+            rebuildOptions()
             
             -- Call callback with initial value
             task.defer(function()
                 pcall(callback, selected)
             end)
-            
+
             return {
                 Set = function(newValue)
                     selected = newValue
@@ -2189,7 +2205,22 @@ function KapaoUI:CreateWindow(options)
                 end,
                 Get = function()
                     return selected
-                end
+                end,
+                SetOptions = function(newOptions, newDefault)
+                    if type(newOptions) ~= "table" or #newOptions == 0 then
+                        return
+                    end
+
+                    optionsList = newOptions
+                    rebuildOptions()
+
+                    -- ตั้งค่าเลือกเริ่มต้นใหม่
+                    local first = newDefault or optionsList[1]
+                    selected = first
+                    dropdownButton.Text = "   " .. tostring(first)
+                    config:Set(key, selected)
+                    pcall(callback, selected)
+                end,
             }
         end
         
