@@ -1217,6 +1217,27 @@ function KapaoUI:CreateWindow(options)
     end
     
     --[[
+        Toggle UI visibility (Show/Hide)
+    ]]
+    function window:Toggle()
+        mainWindow.Visible = not mainWindow.Visible
+    end
+    
+    --[[
+        Show UI
+    ]]
+    function window:Show()
+        mainWindow.Visible = true
+    end
+    
+    --[[
+        Hide UI
+    ]]
+    function window:Hide()
+        mainWindow.Visible = false
+    end
+    
+    --[[
         Create a new tab
         
         Parameters:
