@@ -780,7 +780,7 @@ function KapaoUI:CreateWindow(options)
     minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     minimizeButton.AutoButtonColor = false
     minimizeButton.Parent = topBar
-    createCorner(minimizeButton, 4)
+    createCorner(minimizeButton, 6)
     
     local isMinimized = false
     local originalSize = mainWindow.Size
@@ -820,7 +820,7 @@ function KapaoUI:CreateWindow(options)
     closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     closeButton.AutoButtonColor = false
     closeButton.Parent = topBar
-    createCorner(closeButton, 4)
+    createCorner(closeButton, 6)
     
     closeButton.MouseEnter:Connect(function()
         createTween(closeButton, {BackgroundColor3 = Color3.fromRGB(220, 60, 80)}, 0.2)
@@ -855,7 +855,7 @@ function KapaoUI:CreateWindow(options)
         Size = UDim2.new(0, 180, 1, -30),
         Parent = contentArea,
     })
-    createCorner(sidebar, 8)
+    createCorner(sidebar, 10)
     createStroke(sidebar, Theme.ElementBorder, 1)
     
     local sidebarLayout = Instance.new("UIListLayout")
@@ -879,7 +879,7 @@ function KapaoUI:CreateWindow(options)
         Position = UDim2.new(0, 192, 0, 0),
         Parent = contentArea,
     })
-    createCorner(tabContainer, 8)
+    createCorner(tabContainer, 10)
     createStroke(tabContainer, Theme.ElementBorder, 1)
     
     local tabPadding = Instance.new("UIPadding")
@@ -899,7 +899,7 @@ function KapaoUI:CreateWindow(options)
         Position = UDim2.new(0, 10, 1, -26),
         Parent = mainWindow,
     })
-    createCorner(statusBar, 6)
+    createCorner(statusBar, 8)
     createStroke(statusBar, Theme.ElementBorder, 1)
     
     local statusPadding = Instance.new("UIPadding")
@@ -1006,7 +1006,7 @@ function KapaoUI:CreateWindow(options)
         tabButton.TextColor3 = Theme.TextPrimary
         tabButton.AutoButtonColor = false
         tabButton.Parent = sidebar
-        createCorner(tabButton, 6)
+        createCorner(tabButton, 8)
         
         local tabButtonStroke = createStroke(tabButton, Theme.ElementBorder, 1)
         
@@ -1207,7 +1207,7 @@ function KapaoUI:CreateWindow(options)
                 Size = UDim2.new(1, 0, 0, 70),
                 Parent = tabFrame,
             })
-            createCorner(paragraphFrame, 6)
+            createCorner(paragraphFrame, 8)
             createStroke(paragraphFrame, Theme.ElementBorder, 1)
             
             local padding = Instance.new("UIPadding")
@@ -1674,7 +1674,7 @@ function KapaoUI:CreateWindow(options)
             dropdownButton.TextXAlignment = Enum.TextXAlignment.Left
             dropdownButton.AutoButtonColor = false
             dropdownButton.Parent = dropdownFrame
-            createCorner(dropdownButton, 6)
+            createCorner(dropdownButton, 8)
             createStroke(dropdownButton, Theme.ElementBorder, 1)
             
             -- Arrow
@@ -1744,7 +1744,7 @@ function KapaoUI:CreateWindow(options)
                 optionButton.TextXAlignment = Enum.TextXAlignment.Left
                 optionButton.AutoButtonColor = false
                 optionButton.Parent = optionsList_Frame
-                createCorner(optionButton, 4)
+                createCorner(optionButton, 6)
                 
                 optionButton.MouseEnter:Connect(function()
                     createTween(optionButton, {BackgroundColor3 = Theme.ElementBackgroundHover}, 0.15)
@@ -1846,7 +1846,7 @@ function KapaoUI:CreateWindow(options)
             multiDropButton.TextXAlignment = Enum.TextXAlignment.Left
             multiDropButton.AutoButtonColor = false
             multiDropButton.Parent = multiDropFrame
-            createCorner(multiDropButton, 6)
+            createCorner(multiDropButton, 8)
             createStroke(multiDropButton, Theme.ElementBorder, 1)
             
             -- Arrow
@@ -1865,7 +1865,7 @@ function KapaoUI:CreateWindow(options)
             })
             optionsList_Frame.Visible = false
             optionsList_Frame.ZIndex = 100
-            createCorner(optionsList_Frame, 6)
+            createCorner(optionsList_Frame, 8)
             createStroke(optionsList_Frame, Theme.Accent, 1)
             
             local optionsLayout = Instance.new("UIListLayout")
@@ -1928,7 +1928,7 @@ function KapaoUI:CreateWindow(options)
                     Size = UDim2.new(1, 0, 0, 24),
                     Parent = optionsList_Frame,
                 })
-                createCorner(optionFrame, 4)
+                createCorner(optionFrame, 6)
                 
                 -- Checkbox
                 local checkbox = createFrame({
@@ -1937,7 +1937,7 @@ function KapaoUI:CreateWindow(options)
                     Position = UDim2.new(0, 6, 0, 4),
                     Parent = optionFrame,
                 })
-                createCorner(checkbox, 3)
+                createCorner(checkbox, 4)
                 createStroke(checkbox, Theme.ElementBorder, 1)
                 
                 -- Checkmark
@@ -2051,7 +2051,7 @@ function KapaoUI:CreateWindow(options)
             textBox.PlaceholderColor3 = Theme.TextDark
             textBox.ClearTextOnFocus = false
             textBox.Parent = textBoxFrame
-            createCorner(textBox, 6)
+            createCorner(textBox, 8)
             createStroke(textBox, Theme.ElementBorder, 1)
             
             local textBoxPadding = Instance.new("UIPadding")
@@ -2286,7 +2286,7 @@ function KapaoUI:CreateWindow(options)
             keybindButton.TextColor3 = Theme.Accent
             keybindButton.AutoButtonColor = false
             keybindButton.Parent = keybindFrame
-            createCorner(keybindButton, 6)
+            createCorner(keybindButton, 8)
             createStroke(keybindButton, Theme.ElementBorder, 1)
             
             local currentKey = savedValue
