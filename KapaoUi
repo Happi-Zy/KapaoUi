@@ -948,14 +948,15 @@ function KapaoUI:CreateWindow(options)
     end)
     
     closeButton.MouseButton1Click:Connect(function()
-        -- Create confirmation dialog
+        -- Create confirmation dialog overlay
         local confirmFrame = Instance.new("Frame")
         confirmFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
         confirmFrame.BackgroundTransparency = 0.5
         confirmFrame.Size = UDim2.new(1, 0, 1, 0)
         confirmFrame.Position = UDim2.new(0, 0, 0, 0)
+        confirmFrame.BorderSizePixel = 0
         confirmFrame.ZIndex = 1000
-        confirmFrame.Parent = rootGui
+        confirmFrame.Parent = mainWindow.Parent
         
         local dialogBox = createFrame({
             BackgroundColor = Theme.WindowBackground,
@@ -964,6 +965,7 @@ function KapaoUI:CreateWindow(options)
             Parent = confirmFrame,
         })
         dialogBox.ZIndex = 1001
+        dialogBox.Active = true
         createCorner(dialogBox, 12)
         createStroke(dialogBox, Theme.Accent, 2)
         
@@ -1040,8 +1042,17 @@ function KapaoUI:CreateWindow(options)
             createTween(okBtn, {BackgroundColor3 = Color3.fromRGB(180, 40, 60)}, 0.2)
         end)
         
-        -- Animate dialog
+        -- Animate dialog (fade in + scale)
+        confirmFrame.BackgroundTransparency = 1
+        dialogBox.BackgroundTransparency = 1
+        
+        createTween(confirmFrame, {BackgroundTransparency = 0.5}, 0.2)
+        createTween(dialogBox, {BackgroundTransparency = 0}, 0.2)
+        
+        -- Scale animation
         dialogBox.Size = UDim2.new(0, 0, 0, 0)
+        dialogBox.BackgroundTransparency = 0
+        task.wait(0.05)
         createTween(dialogBox, {Size = UDim2.new(0, 340, 0, 160)}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
     end)
     
