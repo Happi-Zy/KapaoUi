@@ -1970,6 +1970,8 @@ function KapaoUI:CreateWindow(options)
             optionsList_Frame.CanvasSize = UDim2.new(0, 0, 0, 0)
             optionsList_Frame.AutomaticCanvasSize = Enum.AutomaticSize.Y
             optionsList_Frame.ScrollingDirection = Enum.ScrollingDirection.Y
+            optionsList_Frame.ClipsDescendants = false
+            optionsList_Frame.Active = true
             optionsList_Frame.Visible = false
             optionsList_Frame.ZIndex = 1000
             optionsList_Frame.Parent = mainWindow.Parent
@@ -2044,6 +2046,7 @@ function KapaoUI:CreateWindow(options)
                 optionButton.TextColor3 = Theme.TextPrimary
                 optionButton.TextXAlignment = Enum.TextXAlignment.Left
                 optionButton.AutoButtonColor = false
+                optionButton.ZIndex = 1001
                 optionButton.Parent = optionsList_Frame
                 createCorner(optionButton, 6)
                 
@@ -2168,6 +2171,8 @@ function KapaoUI:CreateWindow(options)
             optionsList_Frame.CanvasSize = UDim2.new(0, 0, 0, 0)
             optionsList_Frame.AutomaticCanvasSize = Enum.AutomaticSize.Y
             optionsList_Frame.ScrollingDirection = Enum.ScrollingDirection.Y
+            optionsList_Frame.ClipsDescendants = false
+            optionsList_Frame.Active = true
             optionsList_Frame.Visible = false
             optionsList_Frame.ZIndex = 1000
             optionsList_Frame.Parent = mainWindow.Parent
@@ -2255,6 +2260,7 @@ function KapaoUI:CreateWindow(options)
                     Size = UDim2.new(1, 0, 0, 24),
                     Parent = optionsList_Frame,
                 })
+                optionFrame.ZIndex = 1001
                 createCorner(optionFrame, 6)
                 
                 -- Checkbox
@@ -2264,6 +2270,7 @@ function KapaoUI:CreateWindow(options)
                     Position = UDim2.new(0, 6, 0, 4),
                     Parent = optionFrame,
                 })
+                checkbox.ZIndex = 1002
                 createCorner(checkbox, 4)
                 createStroke(checkbox, Theme.ElementBorder, 1)
                 
@@ -2273,18 +2280,21 @@ function KapaoUI:CreateWindow(options)
                 checkmark.TextXAlignment = Enum.TextXAlignment.Center
                 checkmark.TextColor3 = Theme.Accent
                 checkmark.Visible = selected[option] or false
+                checkmark.ZIndex = 1003
                 
                 -- Option label
                 local optionLabel = createTextLabel(optionFrame, option, 11)
                 optionLabel.Position = UDim2.new(0, 28, 0, 0)
                 optionLabel.Size = UDim2.new(1, -30, 1, 0)
                 optionLabel.Font = Enum.Font.Gotham
+                optionLabel.ZIndex = 1002
                 
                 -- Button overlay
                 local optionButton = Instance.new("TextButton")
                 optionButton.BackgroundTransparency = 1
                 optionButton.Size = UDim2.new(1, 0, 1, 0)
                 optionButton.Text = ""
+                optionButton.ZIndex = 1003
                 optionButton.Parent = optionFrame
                 
                 optionButton.MouseEnter:Connect(function()
