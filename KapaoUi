@@ -1645,35 +1645,28 @@ function KapaoUI:CreateWindow(options)
             fillGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
             fillGlow.Parent = sliderFill
             
-            -- Slider knob
+            -- Slider knob (white with accent border - properly sized)
             local sliderKnob = createFrame({
-                BackgroundColor = Theme.Accent,
-                Size = UDim2.new(0, 20, 0, 20),
-                Position = UDim2.new(0, 0, 0.5, -10),
+                BackgroundColor = Color3.fromRGB(255, 255, 255),
+                Size = UDim2.new(0, 18, 0, 18),
+                Position = UDim2.new(0, 0, 0.5, -9),
                 Parent = sliderBg,
             })
-            createCorner(sliderKnob, 10)
+            sliderKnob.ZIndex = 2
+            createCorner(sliderKnob, 9)
             
-            -- Knob border (white for contrast)
+            -- Main border (accent color)
             local knobBorder = Instance.new("UIStroke")
-            knobBorder.Color = Color3.fromRGB(255, 255, 255)
+            knobBorder.Color = Theme.Accent
             knobBorder.Thickness = 2
             knobBorder.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
             knobBorder.Parent = sliderKnob
             
-            -- Knob shadow
-            local knobShadow = Instance.new("UIStroke")
-            knobShadow.Color = Color3.fromRGB(0, 0, 0)
-            knobShadow.Thickness = 3
-            knobShadow.Transparency = 0.7
-            knobShadow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            knobShadow.Parent = sliderKnob
-            
-            -- Knob glow (for animation)
+            -- Knob glow (for hover/drag animation)
             local knobGlow = Instance.new("UIStroke")
             knobGlow.Color = Theme.Accent
             knobGlow.Thickness = 0
-            knobGlow.Transparency = 0.3
+            knobGlow.Transparency = 0
             knobGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
             knobGlow.Parent = sliderKnob
             
@@ -1683,7 +1676,7 @@ function KapaoUI:CreateWindow(options)
             local function updateVisual()
                 local percent = (value - min) / (max - min)
                 sliderFill.Size = UDim2.new(percent, 0, 1, 0)
-                sliderKnob.Position = UDim2.new(percent, -10, 0.5, -10)
+                sliderKnob.Position = UDim2.new(percent, -9, 0.5, -9)
                 valueLabel.Text = tostring(value)
             end
             
