@@ -1959,7 +1959,7 @@ function KapaoUI:CreateWindow(options)
             arrow.TextXAlignment = Enum.TextXAlignment.Center
             arrow.TextColor3 = Theme.Accent
             
-            -- Options list (parent to tabContainer to avoid clipping) - ScrollingFrame for Dropdown
+            -- Options list (parent to ScreenGui to avoid ALL clipping) - ScrollingFrame for Dropdown
             local optionsList_Frame = Instance.new("ScrollingFrame")
             optionsList_Frame.BackgroundColor3 = Theme.ElementBackground
             optionsList_Frame.Size = UDim2.new(0, 200, 0, 0)
@@ -1971,8 +1971,8 @@ function KapaoUI:CreateWindow(options)
             optionsList_Frame.AutomaticCanvasSize = Enum.AutomaticSize.Y
             optionsList_Frame.ScrollingDirection = Enum.ScrollingDirection.Y
             optionsList_Frame.Visible = false
-            optionsList_Frame.ZIndex = 500
-            optionsList_Frame.Parent = tabContainer
+            optionsList_Frame.ZIndex = 1000
+            optionsList_Frame.Parent = mainWindow.Parent
             createCorner(optionsList_Frame, 8)
             createStroke(optionsList_Frame, Theme.Accent, 1)
             
@@ -1980,14 +1980,14 @@ function KapaoUI:CreateWindow(options)
             task.defer(function()
                 if dropdownButton.AbsoluteSize.X > 0 then
                     optionsList_Frame.Size = UDim2.new(0, dropdownButton.AbsoluteSize.X, 0, 0)
-                    optionsList_Frame.Position = UDim2.new(0, dropdownButton.AbsolutePosition.X - tabContainer.AbsolutePosition.X, 0, dropdownButton.AbsolutePosition.Y - tabContainer.AbsolutePosition.Y + 36)
+                    optionsList_Frame.Position = UDim2.new(0, dropdownButton.AbsolutePosition.X, 0, dropdownButton.AbsolutePosition.Y + 36)
                 end
             end)
             
             -- Update position when button moves
             dropdownButton:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
                 if optionsList_Frame.Visible then
-                    optionsList_Frame.Position = UDim2.new(0, dropdownButton.AbsolutePosition.X - tabContainer.AbsolutePosition.X, 0, dropdownButton.AbsolutePosition.Y - tabContainer.AbsolutePosition.Y + 36)
+                    optionsList_Frame.Position = UDim2.new(0, dropdownButton.AbsolutePosition.X, 0, dropdownButton.AbsolutePosition.Y + 36)
                 end
             end)
             
@@ -2017,7 +2017,7 @@ function KapaoUI:CreateWindow(options)
                     local maxHeight = 200
                     local finalHeight = math.min(calculatedHeight, maxHeight)
                     
-                    optionsList_Frame.Position = UDim2.new(0, dropdownButton.AbsolutePosition.X - tabContainer.AbsolutePosition.X, 0, dropdownButton.AbsolutePosition.Y - tabContainer.AbsolutePosition.Y + 36)
+                    optionsList_Frame.Position = UDim2.new(0, dropdownButton.AbsolutePosition.X, 0, dropdownButton.AbsolutePosition.Y + 36)
                     createTween(optionsList_Frame, {Size = UDim2.new(0, dropdownButton.AbsoluteSize.X, 0, finalHeight)}, 0.25)
                     createTween(arrow, {Rotation = 180}, 0.25)
                 else
@@ -2157,7 +2157,7 @@ function KapaoUI:CreateWindow(options)
             arrow.TextXAlignment = Enum.TextXAlignment.Center
             arrow.TextColor3 = Theme.Accent
             
-            -- Options list (parent to tabContainer to avoid clipping) - ScrollingFrame for MultiDropdown
+            -- Options list (parent to ScreenGui to avoid ALL clipping) - ScrollingFrame for MultiDropdown
             local optionsList_Frame = Instance.new("ScrollingFrame")
             optionsList_Frame.BackgroundColor3 = Theme.ElementBackground
             optionsList_Frame.Size = UDim2.new(0, 200, 0, 0)
@@ -2169,8 +2169,8 @@ function KapaoUI:CreateWindow(options)
             optionsList_Frame.AutomaticCanvasSize = Enum.AutomaticSize.Y
             optionsList_Frame.ScrollingDirection = Enum.ScrollingDirection.Y
             optionsList_Frame.Visible = false
-            optionsList_Frame.ZIndex = 500
-            optionsList_Frame.Parent = tabContainer
+            optionsList_Frame.ZIndex = 1000
+            optionsList_Frame.Parent = mainWindow.Parent
             createCorner(optionsList_Frame, 8)
             createStroke(optionsList_Frame, Theme.Accent, 1)
             
@@ -2178,14 +2178,14 @@ function KapaoUI:CreateWindow(options)
             task.defer(function()
                 if multiDropButton.AbsoluteSize.X > 0 then
                     optionsList_Frame.Size = UDim2.new(0, multiDropButton.AbsoluteSize.X, 0, 0)
-                    optionsList_Frame.Position = UDim2.new(0, multiDropButton.AbsolutePosition.X - tabContainer.AbsolutePosition.X, 0, multiDropButton.AbsolutePosition.Y - tabContainer.AbsolutePosition.Y + 36)
+                    optionsList_Frame.Position = UDim2.new(0, multiDropButton.AbsolutePosition.X, 0, multiDropButton.AbsolutePosition.Y + 36)
                 end
             end)
             
             -- Update position when button moves
             multiDropButton:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
                 if optionsList_Frame.Visible then
-                    optionsList_Frame.Position = UDim2.new(0, multiDropButton.AbsolutePosition.X - tabContainer.AbsolutePosition.X, 0, multiDropButton.AbsolutePosition.Y - tabContainer.AbsolutePosition.Y + 36)
+                    optionsList_Frame.Position = UDim2.new(0, multiDropButton.AbsolutePosition.X, 0, multiDropButton.AbsolutePosition.Y + 36)
                 end
             end)
             
@@ -2233,7 +2233,7 @@ function KapaoUI:CreateWindow(options)
                     local maxHeight = 200
                     local finalHeight = math.min(calculatedHeight, maxHeight)
                     
-                    optionsList_Frame.Position = UDim2.new(0, multiDropButton.AbsolutePosition.X - tabContainer.AbsolutePosition.X, 0, multiDropButton.AbsolutePosition.Y - tabContainer.AbsolutePosition.Y + 36)
+                    optionsList_Frame.Position = UDim2.new(0, multiDropButton.AbsolutePosition.X, 0, multiDropButton.AbsolutePosition.Y + 36)
                     createTween(optionsList_Frame, {Size = UDim2.new(0, multiDropButton.AbsoluteSize.X, 0, finalHeight)}, 0.25)
                     createTween(arrow, {Rotation = 180}, 0.25)
                 else
