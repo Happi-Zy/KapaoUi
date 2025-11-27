@@ -789,19 +789,104 @@ function KapaoUI:CreateWindow(options)
     minimizeButton.Parent = topBar
     createCorner(minimizeButton, 8)
     
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- TOGGLE BUTTON (When minimized)
+    -- ═══════════════════════════════════════════════════════════════════════
+    
+    local toggleButton = Instance.new("TextButton")
+    toggleButton.BackgroundColor3 = Theme.Accent
+    toggleButton.BorderSizePixel = 0
+    toggleButton.Size = UDim2.new(0, 120, 0, 40)
+    toggleButton.Position = UDim2.new(0.5, -60, 0, 20)
+    toggleButton.Text = "⚡ KAPAO"
+    toggleButton.Font = Enum.Font.GothamBold
+    toggleButton.TextSize = 16
+    toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    toggleButton.AutoButtonColor = false
+    toggleButton.Visible = false
+    toggleButton.ZIndex = 1000
+    toggleButton.Parent = rootGui
+    createCorner(toggleButton, 10)
+    
+    -- Glow effect for toggle button
+    local toggleGlow = Instance.new("UIStroke")
+    toggleGlow.Color = Theme.Accent
+    toggleGlow.Thickness = 3
+    toggleGlow.Transparency = 0.3
+    toggleGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    toggleGlow.Parent = toggleButton
+    
+    -- Pulsing animation for toggle button
+    task.spawn(function()
+        while toggleButton.Parent do
+            if toggleButton.Visible then
+                createTween(toggleGlow, {Thickness = 5}, 1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+                task.wait(1)
+                createTween(toggleGlow, {Thickness = 3}, 1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+                task.wait(1)
+            else
+                task.wait(0.5)
+            end
+        end
+    end)
+    
     local isMinimized = false
     local originalSize = mainWindow.Size
     
+    -- Minimize button click
     minimizeButton.MouseButton1Click:Connect(function()
         isMinimized = not isMinimized
         
         if isMinimized then
-            createTween(mainWindow, {Size = UDim2.new(0, 680, 0, 55)}, 0.3, Enum.EasingStyle.Back)
-            minimizeButton.Text = "+"
+            -- Hide main window and show toggle button
+            createTween(mainWindow, {
+                Size = UDim2.new(0, 0, 0, 0),
+                Position = UDim2.new(0.5, 0, 0.5, 0)
+            }, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In).Completed:Connect(function()
+                mainWindow.Visible = false
+                toggleButton.Visible = true
+                toggleButton.Size = UDim2.new(0, 0, 0, 0)
+                createTween(toggleButton, {Size = UDim2.new(0, 120, 0, 40)}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+            end)
         else
-            createTween(mainWindow, {Size = originalSize}, 0.3, Enum.EasingStyle.Back)
-            minimizeButton.Text = "−"
+            -- Hide toggle button and show main window
+            createTween(toggleButton, {Size = UDim2.new(0, 0, 0, 0)}, 0.2, Enum.EasingStyle.Back, Enum.EasingDirection.In).Completed:Connect(function()
+                toggleButton.Visible = false
+                mainWindow.Visible = true
+                mainWindow.Size = UDim2.new(0, 0, 0, 0)
+                mainWindow.Position = UDim2.new(0.5, 0, 0.5, 0)
+                createTween(mainWindow, {
+                    Size = originalSize,
+                    Position = UDim2.new(0.5, -340, 0.5, -225)
+                }, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+            end)
         end
+    end)
+    
+    -- Toggle button click (reopen UI)
+    toggleButton.MouseButton1Click:Connect(function()
+        isMinimized = false
+        createTween(toggleButton, {Size = UDim2.new(0, 0, 0, 0)}, 0.2, Enum.EasingStyle.Back, Enum.EasingDirection.In).Completed:Connect(function()
+            toggleButton.Visible = false
+            mainWindow.Visible = true
+            mainWindow.Size = UDim2.new(0, 0, 0, 0)
+            mainWindow.Position = UDim2.new(0.5, 0, 0.5, 0)
+            createTween(mainWindow, {
+                Size = originalSize,
+                Position = UDim2.new(0.5, -340, 0.5, -225)
+            }, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+        end)
+    end)
+    
+    -- Hover effects for toggle button
+    toggleButton.MouseEnter:Connect(function()
+        createTween(toggleButton, {Size = UDim2.new(0, 130, 0, 45)}, 0.2, Enum.EasingStyle.Quad)
+        createTween(toggleGlow, {Thickness = 6, Transparency = 0}, 0.2)
+    end)
+    
+    toggleButton.MouseLeave:Connect(function()
+        createTween(toggleButton, {Size = UDim2.new(0, 120, 0, 40)}, 0.2, Enum.EasingStyle.Quad)
+        createTween(toggleGlow, {Thickness = 3, Transparency = 0.3}, 0.2)
     end)
     
     minimizeButton.MouseEnter:Connect(function()
