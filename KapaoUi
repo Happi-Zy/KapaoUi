@@ -780,7 +780,7 @@ function KapaoUI:CreateWindow(options)
     minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     minimizeButton.AutoButtonColor = false
     minimizeButton.Parent = topBar
-    createCorner(minimizeButton, 6)
+    createCorner(minimizeButton, 8)
     
     local isMinimized = false
     local originalSize = mainWindow.Size
@@ -820,7 +820,7 @@ function KapaoUI:CreateWindow(options)
     closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     closeButton.AutoButtonColor = false
     closeButton.Parent = topBar
-    createCorner(closeButton, 6)
+    createCorner(closeButton, 8)
     
     closeButton.MouseEnter:Connect(function()
         createTween(closeButton, {BackgroundColor3 = Color3.fromRGB(220, 60, 80)}, 0.2)
@@ -1693,7 +1693,7 @@ function KapaoUI:CreateWindow(options)
             })
             optionsList_Frame.Visible = false
             optionsList_Frame.ZIndex = 100
-            createCorner(optionsList_Frame, 6)
+            createCorner(optionsList_Frame, 8)
             createStroke(optionsList_Frame, Theme.Accent, 1)
             
             local optionsLayout = Instance.new("UIListLayout")
@@ -2183,7 +2183,7 @@ function KapaoUI:CreateWindow(options)
                 Position = UDim2.new(0, 5, 0, 28),
                 Parent = progressFrame,
             })
-            createCorner(progressBg, 6)
+            createCorner(progressBg, 8)
             createStroke(progressBg, Theme.ElementBorder, 1)
             
             -- Progress fill
@@ -2192,7 +2192,7 @@ function KapaoUI:CreateWindow(options)
                 Size = UDim2.new(0, 0, 1, 0),
                 Parent = progressBg,
             })
-            createCorner(progressFill, 6)
+            createCorner(progressFill, 8)
             
             local currentValue = savedValue
             local currentMax = max
