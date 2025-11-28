@@ -682,17 +682,18 @@ function KapaoUI:CreateWindow(options)
         end
     end
     
-    -- Mobile detection
-    local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
-    local scaleFactor = isMobile and 1.2 or 1.0
+    -- Mobile detection (treat any touch device as mobile, including emulators)
+    local isMobile = UserInputService.TouchEnabled
+    local scaleFactor = 1.0
     
     -- ═══════════════════════════════════════════════════════════════════════════
     -- MAIN WINDOW FRAME
     -- ═══════════════════════════════════════════════════════════════════════════
     
     -- Responsive sizing for mobile
-    local windowWidth = isMobile and 340 or 680
-    local windowHeight = isMobile and 500 or 450
+    local baseWidth, baseHeight = 680, 450
+    local windowWidth = isMobile and math.floor(baseWidth * 0.75) or baseWidth
+    local windowHeight = isMobile and math.floor(baseHeight * 0.75) or baseHeight
     
     local mainWindow = createFrame({
         BackgroundColor = Theme.WindowBackground,
@@ -1191,7 +1192,7 @@ function KapaoUI:CreateWindow(options)
     -- ═══════════════════════════════════════════════════════════════════════════
     
     mainWindow.Size = UDim2.new(0, 0, 0, 0)
-    createTween(mainWindow, {Size = UDim2.new(0, 680, 0, 450)}, 0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+    createTween(mainWindow, {Size = UDim2.new(0, windowWidth, 0, windowHeight)}, 0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
     
     -- ═══════════════════════════════════════════════════════════════════════════
     -- WINDOW OBJECT
