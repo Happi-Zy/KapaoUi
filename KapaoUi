@@ -2642,7 +2642,22 @@ function KapaoUI:CreateWindow(options)
             
             return {
                 SetValue = function(newValue)
-                    valueLabel.Text = tostring(newValue)
+                    local display
+                    local valueType = typeof(newValue)
+                    if valueType == "nil" then
+                        display = ""
+                    elseif valueType == "table" then
+                        if type(newValue.name) == "string" and type(newValue.rarity) == "string" then
+                            display = string.format("%s (%s)", newValue.name, newValue.rarity)
+                        elseif newValue.spins ~= nil then
+                            display = "Spins: " .. tostring(newValue.spins)
+                        else
+                            display = "[table]"
+                        end
+                    else
+                        display = tostring(newValue)
+                    end
+                    valueLabel.Text = display
                 end,
                 GetValue = function()
                     return valueLabel.Text
