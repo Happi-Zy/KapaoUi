@@ -2647,12 +2647,27 @@ function KapaoUI:CreateWindow(options)
                     if valueType == "nil" then
                         display = ""
                     elseif valueType == "table" then
+                        -- พยายามจัดรูปแบบ table ให้สวยแทนที่จะเป็น pointer
                         if type(newValue.name) == "string" and type(newValue.rarity) == "string" then
+                            -- ใช้สำหรับ race snapshot: name + rarity
                             display = string.format("%s (%s)", newValue.name, newValue.rarity)
                         elseif newValue.spins ~= nil then
+                            -- ใช้สำหรับ snapshot spins
                             display = "Spins: " .. tostring(newValue.spins)
                         else
-                            display = "[table]"
+                            -- generic pretty-print: key=value สำหรับ field ที่ไม่ซ้อน table
+                            local parts = {}
+                            for k, v in pairs(newValue) do
+                                local vt = typeof(v)
+                                if vt ~= "table" and vt ~= "function" and vt ~= "userdata" then
+                                    table.insert(parts, tostring(k) .. "=" .. tostring(v))
+                                end
+                            end
+                            if #parts > 0 then
+                                display = "{" .. table.concat(parts, ", ") .. "}"
+                            else
+                                display = "[table]"
+                            end
                         end
                     else
                         display = tostring(newValue)
