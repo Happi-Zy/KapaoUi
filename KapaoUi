@@ -2636,7 +2636,8 @@ function KapaoUI:CreateWindow(options)
             -- Value label
             local valueLabel = createTextLabel(statusFrame, tostring(value), 13)
             valueLabel.Position = UDim2.new(0.6, 0, 0, 6)
-            valueLabel.Size = UDim2.new(0.4, 0, 1, -6)
+            -- Add a bit of negative X offset in size so text has padding from the right edge/scrollbar
+            valueLabel.Size = UDim2.new(0.4, -10, 1, -6)
             valueLabel.TextXAlignment = Enum.TextXAlignment.Right
             valueLabel.TextColor3 = Theme.Accent
 
