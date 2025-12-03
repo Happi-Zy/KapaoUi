@@ -2608,6 +2608,12 @@ function KapaoUI:CreateWindow(options)
                 config:Set(key, textBox.Text)
                 pcall(callback, textBox.Text)
             end)
+
+            -- Call callback once with initial value so logic (e.g. AutoPotionBuyBatch)
+            -- picks up the saved config without requiring user input each session
+            task.defer(function()
+                pcall(callback, textBox.Text)
+            end)
             
             return {
                 SetText = function(text)
