@@ -777,13 +777,13 @@ function KapaoUI:CreateWindow(options)
     })
     
     -- Title label
-    local titleLabel = createTextLabel(topBar, title, 18)
+    local titleLabel = createTextLabel(topBar, title, isMobile and 16 or 18)
     titleLabel.Position = UDim2.new(0, 20, 0, 8)
     titleLabel.Size = UDim2.new(0.6, 0, 0, 20)
     titleLabel.TextColor3 = Theme.Accent
     
     -- Subtitle label
-    local subtitleLabel = createTextLabel(topBar, subtitle, 12)
+    local subtitleLabel = createTextLabel(topBar, subtitle, isMobile and 11 or 12)
     subtitleLabel.Position = UDim2.new(0, 20, 0, 30)
     subtitleLabel.Size = UDim2.new(0.6, 0, 0, 16)
     subtitleLabel.TextColor3 = Theme.TextSecondary
@@ -800,7 +800,7 @@ function KapaoUI:CreateWindow(options)
     minimizeButton.Position = UDim2.new(1, -84, 0, 12)
     minimizeButton.Text = "−"
     minimizeButton.Font = Enum.Font.GothamBold
-    minimizeButton.TextSize = 18
+    minimizeButton.TextSize = isMobile and 16 or 18
     minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     minimizeButton.AutoButtonColor = false
     minimizeButton.Parent = topBar
@@ -817,7 +817,7 @@ function KapaoUI:CreateWindow(options)
     toggleButton.Position = UDim2.new(1, -140, 0.5, -22.5)
     toggleButton.Text = "Kapao Hub"
     toggleButton.Font = Enum.Font.GothamBold
-    toggleButton.TextSize = 14
+    toggleButton.TextSize = isMobile and 12 or 14
     toggleButton.TextColor3 = Theme.Accent
     toggleButton.AutoButtonColor = false
     toggleButton.Visible = false
@@ -950,7 +950,7 @@ function KapaoUI:CreateWindow(options)
     closeButton.Position = UDim2.new(1, -42, 0, 12)
     closeButton.Text = "✕"
     closeButton.Font = Enum.Font.GothamBold
-    closeButton.TextSize = 16
+    closeButton.TextSize = isMobile and 14 or 16
     closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     closeButton.AutoButtonColor = false
     closeButton.Parent = topBar
@@ -1275,10 +1275,10 @@ function KapaoUI:CreateWindow(options)
         local tabButton = Instance.new("TextButton")
         tabButton.BackgroundColor3 = Theme.ElementBackground
         tabButton.BorderSizePixel = 0
-        tabButton.Size = UDim2.new(1, 0, 0, 36)
+        tabButton.Size = UDim2.new(1, 0, 0, isMobile and 30 or 36)
         tabButton.Text = name
         tabButton.Font = Enum.Font.GothamSemibold
-        tabButton.TextSize = 13
+        tabButton.TextSize = isMobile and 11 or 13
         tabButton.TextColor3 = Theme.TextPrimary
         tabButton.AutoButtonColor = false
         tabButton.Parent = sidebarScroll
@@ -1383,12 +1383,12 @@ function KapaoUI:CreateWindow(options)
         function tab:AddSection(text)
             local sectionFrame = createFrame({
                 BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
-                Size = UDim2.new(1, 0, 0, 30),
+                Size = UDim2.new(1, 0, 0, isMobile and 26 or 30),
                 Parent = tabFrame,
             })
             sectionFrame.BackgroundTransparency = 1
             
-            local sectionLabel = createTextLabel(sectionFrame, text or "Section", 15)
+            local sectionLabel = createTextLabel(sectionFrame, text or "Section", isMobile and 13 or 15)
             sectionLabel.Size = UDim2.new(1, 0, 1, 0)
             sectionLabel.TextColor3 = Theme.Accent
             
@@ -1440,12 +1440,12 @@ function KapaoUI:CreateWindow(options)
         function tab:AddLabel(text)
             local labelFrame = createFrame({
                 BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
-                Size = UDim2.new(1, 0, 0, 24),
+                Size = UDim2.new(1, 0, 0, isMobile and 20 or 24),
                 Parent = tabFrame,
             })
             labelFrame.BackgroundTransparency = 1
             
-            local label = createTextLabel(labelFrame, text or "Label", 12)
+            local label = createTextLabel(labelFrame, text or "Label", isMobile and 11 or 12)
             label.Size = UDim2.new(1, 0, 1, 0)
             label.TextColor3 = Theme.TextSecondary
             label.Font = Enum.Font.Gotham
@@ -1482,7 +1482,7 @@ function KapaoUI:CreateWindow(options)
             
             local paragraphFrame = createFrame({
                 BackgroundColor = Theme.ElementBackground,
-                Size = UDim2.new(1, 0, 0, 70),
+                Size = UDim2.new(1, 0, 0, isMobile and 64 or 70),
                 Parent = tabFrame,
             })
             createCorner(paragraphFrame, 8)
@@ -1495,13 +1495,13 @@ function KapaoUI:CreateWindow(options)
             padding.PaddingRight = UDim.new(0, 10)
             padding.Parent = paragraphFrame
             
-            local titleLabel = createTextLabel(paragraphFrame, title, 13)
+            local titleLabel = createTextLabel(paragraphFrame, title, isMobile and 12 or 13)
             titleLabel.Size = UDim2.new(1, 0, 0, 16)
             titleLabel.Position = UDim2.new(0, 0, 0, 0)
             titleLabel.TextColor3 = Theme.Accent
             titleLabel.Font = Enum.Font.GothamBold
             
-            local contentLabel = createTextLabel(paragraphFrame, content, 11)
+            local contentLabel = createTextLabel(paragraphFrame, content, isMobile and 10 or 11)
             contentLabel.Size = UDim2.new(1, 0, 1, -18)
             contentLabel.Position = UDim2.new(0, 0, 0, 18)
             contentLabel.TextColor3 = Theme.TextSecondary
@@ -1544,7 +1544,7 @@ function KapaoUI:CreateWindow(options)
             
             local buttonFrame = createFrame({
                 BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
-                Size = UDim2.new(1, 0, 0, 38),
+                Size = UDim2.new(1, 0, 0, isMobile and 34 or 38),
                 Parent = tabFrame,
             })
             buttonFrame.BackgroundTransparency = 1
@@ -1552,11 +1552,11 @@ function KapaoUI:CreateWindow(options)
             local button = Instance.new("TextButton")
             button.BackgroundColor3 = Theme.ElementBackground
             button.BorderSizePixel = 0
-            button.Size = UDim2.new(0, 200, 0, 32)
+            button.Size = UDim2.new(0, 200, 0, isMobile and 28 or 32)
             button.Position = UDim2.new(0, 0, 0, 3)
             button.Text = label
             button.Font = Enum.Font.GothamSemibold
-            button.TextSize = 13
+            button.TextSize = isMobile and 11 or 13
             button.TextColor3 = Theme.Accent
             button.AutoButtonColor = false
             button.Parent = buttonFrame
@@ -1628,19 +1628,19 @@ function KapaoUI:CreateWindow(options)
             
             local toggleFrame = createFrame({
                 BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
-                Size = UDim2.new(1, 0, 0, 36),
+                Size = UDim2.new(1, 0, 0, isMobile and 32 or 36),
                 Parent = tabFrame,
             })
             toggleFrame.BackgroundTransparency = 1
             
-            local toggleLabel = createTextLabel(toggleFrame, label, 13)
+            local toggleLabel = createTextLabel(toggleFrame, label, isMobile and 12 or 13)
             toggleLabel.Position = UDim2.new(0, 0, 0, 8)
             toggleLabel.Size = UDim2.new(1, -70, 1, -8)
             
             -- Switch background
             local switchBg = createFrame({
                 BackgroundColor = Theme.ElementBackground,
-                Size = UDim2.new(0, 50, 0, 26),
+                Size = UDim2.new(0, isMobile and 46 or 50, 0, isMobile and 24 or 26),
                 Position = UDim2.new(1, -60, 0, 5),
                 Parent = toggleFrame,
             })
@@ -1659,7 +1659,7 @@ function KapaoUI:CreateWindow(options)
             -- Switch knob
             local switchKnob = createFrame({
                 BackgroundColor = Color3.fromRGB(140, 150, 170),
-                Size = UDim2.new(0, 20, 0, 20),
+                Size = UDim2.new(0, isMobile and 18 or 20, 0, isMobile and 18 or 20),
                 Position = UDim2.new(0, 3, 0, 3),
                 Parent = switchBg,
             })
@@ -1764,23 +1764,23 @@ function KapaoUI:CreateWindow(options)
             
             local sliderFrame = createFrame({
                 BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
-                Size = UDim2.new(1, 0, 0, 50),
+                Size = UDim2.new(1, 0, 0, isMobile and 44 or 50),
                 Parent = tabFrame,
             })
             sliderFrame.BackgroundTransparency = 1
             
             -- Label
-            local sliderLabel = createTextLabel(sliderFrame, label, 13)
+            local sliderLabel = createTextLabel(sliderFrame, label, isMobile and 12 or 13)
             sliderLabel.Position = UDim2.new(0, 0, 0, 2)
             sliderLabel.Size = UDim2.new(0.7, 0, 0, 18)
             
             -- Value input box (editable)
             local valueInput = Instance.new("TextBox")
             valueInput.BackgroundColor3 = Theme.ElementBackground
-            valueInput.Size = UDim2.new(0, 50, 0, 20)
+            valueInput.Size = UDim2.new(0, 50, 0, isMobile and 18 or 20)
             valueInput.Position = UDim2.new(1, -55, 0, 1)
             valueInput.Font = Enum.Font.Gotham
-            valueInput.TextSize = 13
+            valueInput.TextSize = isMobile and 11 or 13
             valueInput.TextColor3 = Theme.Accent
             valueInput.Text = tostring(default)
             valueInput.TextXAlignment = Enum.TextXAlignment.Center
@@ -1796,7 +1796,7 @@ function KapaoUI:CreateWindow(options)
             -- Slider background (leave space for value label)
             local sliderBg = createFrame({
                 BackgroundColor = Theme.ElementBackground,
-                Size = UDim2.new(1, -81, 0, 10),
+                Size = UDim2.new(1, -81, 0, isMobile and 8 or 10),
                 Position = UDim2.new(0, 13, 0, 28),
                 Parent = sliderFrame,
             })
@@ -1822,7 +1822,7 @@ function KapaoUI:CreateWindow(options)
             -- Slider knob (white with accent border - compact size)
             local sliderKnob = createFrame({
                 BackgroundColor = Color3.fromRGB(255, 255, 255),
-                Size = UDim2.new(0, 16, 0, 16),
+                Size = UDim2.new(0, isMobile and 14 or 16, 0, isMobile and 14 or 16),
                 Position = UDim2.new(0, 0, 0.5, -8),
                 Parent = sliderBg,
             })
@@ -1999,14 +1999,14 @@ function KapaoUI:CreateWindow(options)
             
             local dropdownFrame = createFrame({
                 BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
-                Size = UDim2.new(1, 0, 0, 60),
+                Size = UDim2.new(1, 0, 0, isMobile and 52 or 60),
                 Parent = tabFrame,
             })
             dropdownFrame.BackgroundTransparency = 1
             dropdownFrame.ClipsDescendants = false
             
             -- Label
-            local dropdownLabel = createTextLabel(dropdownFrame, label, 13)
+            local dropdownLabel = createTextLabel(dropdownFrame, label, isMobile and 12 or 13)
             dropdownLabel.Position = UDim2.new(0, 0, 0, 2)
             dropdownLabel.Size = UDim2.new(1, 0, 0, 18)
             
@@ -2014,11 +2014,11 @@ function KapaoUI:CreateWindow(options)
             local dropdownButton = Instance.new("TextButton")
             dropdownButton.BackgroundColor3 = Theme.ElementBackground
             dropdownButton.BorderSizePixel = 0
-            dropdownButton.Size = UDim2.new(1, 0, 0, 32)
+            dropdownButton.Size = UDim2.new(1, 0, 0, isMobile and 28 or 32)
             dropdownButton.Position = UDim2.new(0, 0, 0, 24)
             dropdownButton.Text = "   " .. (default or "Select...")
             dropdownButton.Font = Enum.Font.Gotham
-            dropdownButton.TextSize = 12
+            dropdownButton.TextSize = isMobile and 11 or 12
             dropdownButton.TextColor3 = Theme.TextPrimary
             dropdownButton.TextXAlignment = Enum.TextXAlignment.Left
             dropdownButton.AutoButtonColor = false
@@ -2027,7 +2027,7 @@ function KapaoUI:CreateWindow(options)
             createStroke(dropdownButton, Theme.ElementBorder, 1)
             
             -- Arrow
-            local arrow = createTextLabel(dropdownButton, "▼", 10)
+            local arrow = createTextLabel(dropdownButton, "▼", isMobile and 9 or 10)
             arrow.Position = UDim2.new(1, -24, 0, 0)
             arrow.Size = UDim2.new(0, 20, 1, 0)
             arrow.TextXAlignment = Enum.TextXAlignment.Center
@@ -2172,10 +2172,10 @@ function KapaoUI:CreateWindow(options)
                     local optionButton = Instance.new("TextButton")
                     optionButton.BackgroundColor3 = Theme.ElementBackground
                     optionButton.BorderSizePixel = 0
-                    optionButton.Size = UDim2.new(1, 0, 0, 24)
+                    optionButton.Size = UDim2.new(1, 0, 0, isMobile and 20 or 24)
                     optionButton.Text = "  " .. option
                     optionButton.Font = Enum.Font.Gotham
-                    optionButton.TextSize = 12
+                    optionButton.TextSize = isMobile and 10 or 12
                     optionButton.TextColor3 = Theme.TextPrimary
                     optionButton.TextXAlignment = Enum.TextXAlignment.Left
                     optionButton.AutoButtonColor = false
@@ -2287,14 +2287,14 @@ function KapaoUI:CreateWindow(options)
             
             local multiDropFrame = createFrame({
                 BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
-                Size = UDim2.new(1, 0, 0, 60),
+                Size = UDim2.new(1, 0, 0, isMobile and 52 or 60),
                 Parent = tabFrame,
             })
             multiDropFrame.BackgroundTransparency = 1
             multiDropFrame.ClipsDescendants = false
             
             -- Label
-            local multiDropLabel = createTextLabel(multiDropFrame, label, 13)
+            local multiDropLabel = createTextLabel(multiDropFrame, label, isMobile and 12 or 13)
             multiDropLabel.Position = UDim2.new(0, 0, 0, 2)
             multiDropLabel.Size = UDim2.new(1, 0, 0, 18)
             
@@ -2302,11 +2302,11 @@ function KapaoUI:CreateWindow(options)
             local multiDropButton = Instance.new("TextButton")
             multiDropButton.BackgroundColor3 = Theme.ElementBackground
             multiDropButton.BorderSizePixel = 0
-            multiDropButton.Size = UDim2.new(1, 0, 0, 32)
+            multiDropButton.Size = UDim2.new(1, 0, 0, isMobile and 28 or 32)
             multiDropButton.Position = UDim2.new(0, 0, 0, 24)
             multiDropButton.Text = "   Multiple..."
             multiDropButton.Font = Enum.Font.Gotham
-            multiDropButton.TextSize = 12
+            multiDropButton.TextSize = isMobile and 11 or 12
             multiDropButton.TextColor3 = Theme.TextPrimary
             multiDropButton.TextXAlignment = Enum.TextXAlignment.Left
             multiDropButton.AutoButtonColor = false
@@ -2315,7 +2315,7 @@ function KapaoUI:CreateWindow(options)
             createStroke(multiDropButton, Theme.ElementBorder, 1)
             
             -- Arrow
-            local arrow = createTextLabel(multiDropButton, "▼", 10)
+            local arrow = createTextLabel(multiDropButton, "▼", isMobile and 9 or 10)
             arrow.Position = UDim2.new(1, -24, 0, 0)
             arrow.Size = UDim2.new(0, 20, 1, 0)
             arrow.TextXAlignment = Enum.TextXAlignment.Center
@@ -2483,7 +2483,7 @@ function KapaoUI:CreateWindow(options)
                 createStroke(checkbox, Theme.ElementBorder, 1)
                 
                 -- Checkmark
-                local checkmark = createTextLabel(checkbox, "✓", 12)
+                local checkmark = createTextLabel(checkbox, "✓", isMobile and 11 or 12)
                 checkmark.Size = UDim2.new(1, 0, 1, 0)
                 checkmark.TextXAlignment = Enum.TextXAlignment.Center
                 checkmark.TextColor3 = Theme.Accent
@@ -2491,7 +2491,7 @@ function KapaoUI:CreateWindow(options)
                 checkmark.ZIndex = 1003
                 
                 -- Option label
-                local optionLabel = createTextLabel(optionFrame, option, 11)
+                local optionLabel = createTextLabel(optionFrame, option, isMobile and 10 or 11)
                 optionLabel.Position = UDim2.new(0, 28, 0, 0)
                 optionLabel.Size = UDim2.new(1, -30, 1, 0)
                 optionLabel.Font = Enum.Font.Gotham
@@ -2572,13 +2572,13 @@ function KapaoUI:CreateWindow(options)
             
             local textBoxFrame = createFrame({
                 BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
-                Size = UDim2.new(1, 0, 0, 60),
+                Size = UDim2.new(1, 0, 0, isMobile and 52 or 60),
                 Parent = tabFrame,
             })
             textBoxFrame.BackgroundTransparency = 1
             
             -- Label
-            local textBoxLabel = createTextLabel(textBoxFrame, label, 13)
+            local textBoxLabel = createTextLabel(textBoxFrame, label, isMobile and 12 or 13)
             textBoxLabel.Position = UDim2.new(0, 0, 0, 2)
             textBoxLabel.Size = UDim2.new(1, 0, 0, 18)
             
@@ -2586,12 +2586,12 @@ function KapaoUI:CreateWindow(options)
             local textBox = Instance.new("TextBox")
             textBox.BackgroundColor3 = Theme.ElementBackground
             textBox.BorderSizePixel = 0
-            textBox.Size = UDim2.new(1, 0, 0, 32)
+            textBox.Size = UDim2.new(1, 0, 0, isMobile and 28 or 32)
             textBox.Position = UDim2.new(0, 0, 0, 24)
             textBox.Text = savedValue
             textBox.PlaceholderText = placeholder
             textBox.Font = Enum.Font.Gotham
-            textBox.TextSize = 12
+            textBox.TextSize = isMobile and 11 or 12
             textBox.TextColor3 = Theme.TextPrimary
             textBox.PlaceholderColor3 = Theme.TextDark
             textBox.ClearTextOnFocus = false
@@ -2643,18 +2643,18 @@ function KapaoUI:CreateWindow(options)
 
             local statusFrame = createFrame({
                 BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
-                Size = UDim2.new(1, 0, 0, 30),
+                Size = UDim2.new(1, 0, 0, isMobile and 26 or 30),
                 Parent = tabFrame,
             })
             statusFrame.BackgroundTransparency = 1
 
             -- Label
-            local statusLabel = createTextLabel(statusFrame, label, 13)
+            local statusLabel = createTextLabel(statusFrame, label, isMobile and 12 or 13)
             statusLabel.Position = UDim2.new(0, 0, 0, 6)
             statusLabel.Size = UDim2.new(0.6, 0, 1, -6)
 
             -- Value label
-            local valueLabel = createTextLabel(statusFrame, tostring(value), 13)
+            local valueLabel = createTextLabel(statusFrame, tostring(value), isMobile and 12 or 13)
             -- Start a bit earlier (0.55 instead of 0.6) so there is more room from the right edge
             valueLabel.Position = UDim2.new(0.55, 0, 0, 6)
             -- Slightly narrower width and a small negative offset to keep padding from the right edge
@@ -2740,18 +2740,18 @@ function KapaoUI:CreateWindow(options)
             
             local progressFrame = createFrame({
                 BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
-                Size = UDim2.new(1, 0, 0, 50),
+                Size = UDim2.new(1, 0, 0, isMobile and 44 or 50),
                 Parent = tabFrame,
             })
             progressFrame.BackgroundTransparency = 1
             
             -- Label
-            local progressLabel = createTextLabel(progressFrame, label, 13)
+            local progressLabel = createTextLabel(progressFrame, label, isMobile and 12 or 13)
             progressLabel.Position = UDim2.new(0, 0, 0, 2)
             progressLabel.Size = UDim2.new(0.7, 0, 0, 18)
             
             -- Value label
-            local valueLabel = createTextLabel(progressFrame, tostring(savedValue) .. "/" .. tostring(max), 13)
+            local valueLabel = createTextLabel(progressFrame, tostring(savedValue) .. "/" .. tostring(max), isMobile and 12 or 13)
             valueLabel.Position = UDim2.new(0.7, 0, 0, 2)
             valueLabel.Size = UDim2.new(0.3, 0, 0, 18)
             valueLabel.TextXAlignment = Enum.TextXAlignment.Right
@@ -2760,7 +2760,7 @@ function KapaoUI:CreateWindow(options)
             -- Progress bar background
             local progressBg = createFrame({
                 BackgroundColor = Theme.ElementBackground,
-                Size = UDim2.new(1, -10, 0, 12),
+                Size = UDim2.new(1, -10, 0, isMobile and 10 or 12),
                 Position = UDim2.new(0, 5, 0, 28),
                 Parent = progressFrame,
             })
@@ -2845,13 +2845,13 @@ function KapaoUI:CreateWindow(options)
             
             local keybindFrame = createFrame({
                 BackgroundColor = Color3.fromRGB(0, 0, 0, 0),
-                Size = UDim2.new(1, 0, 0, 36),
+                Size = UDim2.new(1, 0, 0, isMobile and 32 or 36),
                 Parent = tabFrame,
             })
             keybindFrame.BackgroundTransparency = 1
             
             -- Label
-            local keybindLabel = createTextLabel(keybindFrame, label, 13)
+            local keybindLabel = createTextLabel(keybindFrame, label, isMobile and 12 or 13)
             keybindLabel.Position = UDim2.new(0, 0, 0, 8)
             keybindLabel.Size = UDim2.new(1, -120, 1, -8)
             
@@ -2859,11 +2859,11 @@ function KapaoUI:CreateWindow(options)
             local keybindButton = Instance.new("TextButton")
             keybindButton.BackgroundColor3 = Theme.ElementBackground
             keybindButton.BorderSizePixel = 0
-            keybindButton.Size = UDim2.new(0, 100, 0, 28)
+            keybindButton.Size = UDim2.new(0, 100, 0, isMobile and 24 or 28)
             keybindButton.Position = UDim2.new(1, -110, 0, 4)
             keybindButton.Text = savedValue
             keybindButton.Font = Enum.Font.GothamSemibold
-            keybindButton.TextSize = 12
+            keybindButton.TextSize = isMobile and 11 or 12
             keybindButton.TextColor3 = Theme.Accent
             keybindButton.AutoButtonColor = false
             keybindButton.Parent = keybindFrame
