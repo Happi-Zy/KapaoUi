@@ -1280,6 +1280,8 @@ function KapaoUI:CreateWindow(options)
         tabFrame.BorderSizePixel = 0
         tabFrame.ScrollBarThickness = 4
         tabFrame.ScrollBarImageColor3 = Theme.Accent
+        tabFrame.ScrollingDirection = Enum.ScrollingDirection.Y
+        tabFrame.Active = true
         tabFrame.CanvasSize = UDim2.new(0, 0, 2, 0) -- FIX: Set larger canvas size
         tabFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
         tabFrame.Parent = tabContainer
