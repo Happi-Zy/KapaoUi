@@ -1094,17 +1094,35 @@ function KapaoUI:CreateWindow(options)
     })
     createCorner(sidebar, 10)
     createStroke(sidebar, Theme.ElementBorder, 1)
-    
+
+    local sidebarScroll = Instance.new("ScrollingFrame")
+    sidebarScroll.Name = "SidebarScroll"
+    sidebarScroll.BackgroundTransparency = 1
+    sidebarScroll.BorderSizePixel = 0
+    sidebarScroll.Size = UDim2.new(1, 0, 1, 0)
+    sidebarScroll.Position = UDim2.new(0, 0, 0, 0)
+    sidebarScroll.ScrollBarThickness = 4
+    sidebarScroll.ScrollBarImageColor3 = Theme.Accent
+    sidebarScroll.ScrollingDirection = Enum.ScrollingDirection.Y
+    sidebarScroll.Active = true
+    sidebarScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    sidebarScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+    sidebarScroll.Parent = sidebar
+
     local sidebarLayout = Instance.new("UIListLayout")
     sidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
     sidebarLayout.Padding = UDim.new(0, 6)
-    sidebarLayout.Parent = sidebar
-    
+    sidebarLayout.Parent = sidebarScroll
+
     local sidebarPadding = Instance.new("UIPadding")
     sidebarPadding.PaddingTop = UDim.new(0, 12)
     sidebarPadding.PaddingLeft = UDim.new(0, 10)
     sidebarPadding.PaddingRight = UDim.new(0, 10)
-    sidebarPadding.Parent = sidebar
+    sidebarPadding.Parent = sidebarScroll
+
+    sidebarLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        sidebarScroll.CanvasSize = UDim2.new(0, 0, 0, sidebarLayout.AbsoluteContentSize.Y + 20)
+    end)
     
     -- ═══════════════════════════════════════════════════════════════════════════
     -- TAB CONTAINER
@@ -1263,7 +1281,7 @@ function KapaoUI:CreateWindow(options)
         tabButton.TextSize = 13
         tabButton.TextColor3 = Theme.TextPrimary
         tabButton.AutoButtonColor = false
-        tabButton.Parent = sidebar
+        tabButton.Parent = sidebarScroll
         createCorner(tabButton, 8)
         
         local tabButtonStroke = createStroke(tabButton, Theme.ElementBorder, 1)
