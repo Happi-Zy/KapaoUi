@@ -1703,7 +1703,7 @@ function KapaoUI:CreateWindow(options)
                 state = newState
                 updateVisual()
                 config:Set(key, state)
-                pcall(callback, state)
+                pcall(callback, state, false)
             end
             
             switchBg.InputBegan:Connect(function(input)
@@ -1713,9 +1713,9 @@ function KapaoUI:CreateWindow(options)
                 end
             end)
             
-            -- Call callback with initial state
+            -- Call callback with initial state (from config)
             task.defer(function()
-                pcall(callback, state)
+                pcall(callback, state, true)
             end)
             
             return {
