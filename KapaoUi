@@ -1621,9 +1621,12 @@ function KapaoUI:CreateWindow(options)
             local default = options.Default
             local callback = options.Callback or function() end
             
-            -- Get saved value or use default
-            if default == nil then
-                default = config:Get(key, false)
+            -- Get saved value (saved config should override provided Default)
+            local savedValue = config:Get(key, nil)
+            if savedValue ~= nil then
+                default = savedValue
+            elseif default == nil then
+                default = false
             end
             
             local toggleFrame = createFrame({
@@ -1757,9 +1760,12 @@ function KapaoUI:CreateWindow(options)
             local default = options.Default
             local callback = options.Callback or function() end
             
-            -- Get saved value or use default
-            if default == nil then
-                default = config:Get(key, min)
+            -- Get saved value (saved config should override provided Default)
+            local savedValue = config:Get(key, nil)
+            if savedValue ~= nil then
+                default = savedValue
+            elseif default == nil then
+                default = min
             end
             
             local sliderFrame = createFrame({
@@ -1992,9 +1998,12 @@ function KapaoUI:CreateWindow(options)
             local default = options.Default
             local callback = options.Callback or function() end
             
-            -- Get saved value or use default
-            if default == nil then
-                default = config:Get(key, optionsList[1])
+            -- Get saved value (saved config should override provided Default)
+            local savedValue = config:Get(key, nil)
+            if savedValue ~= nil then
+                default = savedValue
+            else
+                default = default or optionsList[1]
             end
             
             local dropdownFrame = createFrame({
