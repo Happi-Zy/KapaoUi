@@ -40,6 +40,23 @@
 
 local KapaoUI = {}
 
+local function isDebugEnabled()
+    local ok, env = pcall(getgenv)
+    if ok and type(env) == "table" and env.KAPAO_UI_DEBUG ~= nil then
+        return env.KAPAO_UI_DEBUG
+    end
+    if type(_G) == "table" and _G.KAPAO_UI_DEBUG ~= nil then
+        return _G.KAPAO_UI_DEBUG
+    end
+    return false
+end
+
+local function debugPrint(...)
+    if isDebugEnabled() then
+        print("[KapaoUI]", ...)
+    end
+end
+
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- SERVICES
 -- ═══════════════════════════════════════════════════════════════════════════════
@@ -1997,6 +2014,7 @@ function KapaoUI:CreateWindow(options)
             local optionsList = options.Options or {"Option 1", "Option 2"}
             local default = options.Default
             local callback = options.Callback or function() end
+            debugPrint("[Dropdown]", key, "init with", #optionsList, "options")
             
             -- Get saved value (saved config should override provided Default)
             local savedValue = config:Get(key, nil)
@@ -2177,6 +2195,7 @@ function KapaoUI:CreateWindow(options)
             local function rebuildOptions()
                 clearOptions()
 
+                local created = 0
                 for _, option in ipairs(optionsList) do
                     local optionButton = Instance.new("TextButton")
                     optionButton.BackgroundColor3 = Theme.ElementBackground
@@ -2216,7 +2235,9 @@ function KapaoUI:CreateWindow(options)
                         pcall(callback, selected)
                         closeDropdown()
                     end)
+                    created += 1
                 end
+                debugPrint("[Dropdown]", key, "rebuild complete with", created, "buttons")
             end
 
             -- สร้างตัวเลือกเริ่มต้น
@@ -2238,6 +2259,17 @@ function KapaoUI:CreateWindow(options)
                     return selected
                 end,
                 SetOptions = function(newOptions, newDefault)
+                    debugPrint(
+                        "[Dropdown]",
+                        key,
+                        "SetOptions called",
+                        "valid:",
+                        type(newOptions) == "table",
+                        "count:",
+                        type(newOptions) == "table" and #newOptions or "n/a",
+                        "default:",
+                        newDefault
+                    )
                     if type(newOptions) ~= "table" or #newOptions == 0 then
                         return
                     end
@@ -2251,6 +2283,7 @@ function KapaoUI:CreateWindow(options)
                     dropdownButton.Text = "   " .. tostring(first)
                     config:Set(key, selected)
                     pcall(callback, selected)
+                    debugPrint("[Dropdown]", key, "SetOptions applied default", tostring(first))
                 end,
             }
         end
