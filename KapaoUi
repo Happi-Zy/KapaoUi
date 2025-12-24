@@ -111,41 +111,6 @@ local Theme = {
     Error = Color3.fromRGB(255, 60, 80),
 }
 
-local IconDictionary = {
-    user = "rbxassetid://6034509993",
-    settings = "rbxassetid://6034509990",
-    gem = "rbxassetid://6034413215",
-    shuffle = "rbxassetid://6035047391",
-    misc = "rbxassetid://6034394826",
-    sword = "rbxassetid://6034684943",
-    lightning = "rbxassetid://6034287516",
-}
-
-local function resolveIcon(icon)
-    if not icon then
-        return nil, nil
-    end
-
-    if typeof(icon) == "number" then
-        return "rbxassetid://" .. icon, nil
-    end
-
-    if type(icon) == "string" then
-        if icon:match("^rbxassetid://") or icon:match("^https?://") then
-            return icon, nil
-        end
-
-        local mapped = IconDictionary[icon:lower()]
-        if mapped then
-            return mapped, nil
-        end
-
-        return nil, icon
-    end
-
-    return nil, nil
-end
-
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- UTILITY FUNCTIONS
 -- ═══════════════════════════════════════════════════════════════════════════════
@@ -188,13 +153,8 @@ local function makeDraggable(frame, dragHandle)
     local dragging = false
     local dragStart = nil
     local startPos = nil
-    local draggingEnabled = true
     
     dragHandle.InputBegan:Connect(function(input)
-        if not draggingEnabled then
-            return
-        end
-
         if input.UserInputType == Enum.UserInputType.MouseButton1 or 
            input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
@@ -223,15 +183,6 @@ local function makeDraggable(frame, dragHandle)
             end
         end
     end)
-
-    return {
-        SetEnabled = function(_, enabled)
-            draggingEnabled = enabled and true or false
-        end,
-        IsEnabled = function()
-            return draggingEnabled
-        end
-    }
 end
 
 --[[
@@ -770,23 +721,6 @@ function KapaoUI:CreateWindow(options)
     mainWindow.Name = "KapaoWindow"
     mainWindow.ClipsDescendants = true
     createCorner(mainWindow, 12)
-
-    local minWidth, minHeight = 520, 320
-    local maxWidth, maxHeight = 1200, 800
-    local currentWidth, currentHeight = windowWidth, windowHeight
-    local originalSize = UDim2.new(0, windowWidth, 0, windowHeight)
-
-    local function setWindowSize(width, height)
-        width = math.clamp(width, minWidth, maxWidth)
-        height = math.clamp(height, minHeight, maxHeight)
-        currentWidth = width
-        currentHeight = height
-        mainWindow.Size = UDim2.new(0, width, 0, height)
-        mainWindow.Position = UDim2.new(0.5, -width/2, 0.5, -height/2)
-        originalSize = UDim2.new(0, width, 0, height)
-    end
-
-    setWindowSize(windowWidth, windowHeight)
     
     -- ═══════════════════════════════════════════════════════════════════════════
     -- SUBTLE GRADIENT BACKGROUND
@@ -845,7 +779,7 @@ function KapaoUI:CreateWindow(options)
     
     local topBar = createFrame({
         BackgroundColor = Theme.TopBar,
-        Size = UDim2.new(1, 0, 0, 60),
+        Size = UDim2.new(1, 0, 0, 55),
         Parent = mainWindow,
     })
     createCorner(topBar, 12)
@@ -861,39 +795,17 @@ function KapaoUI:CreateWindow(options)
     
     -- Title label
     local titleLabel = createTextLabel(topBar, title, isMobile and 16 or 18)
-    titleLabel.Position = UDim2.new(0, 80, 0, 8)
-    titleLabel.Size = UDim2.new(0.4, 0, 0, 20)
+    titleLabel.Position = UDim2.new(0, 20, 0, 8)
+    titleLabel.Size = UDim2.new(0.6, 0, 0, 20)
     titleLabel.TextColor3 = Theme.Accent
     
     -- Subtitle label
     local subtitleLabel = createTextLabel(topBar, subtitle, isMobile and 11 or 12)
-    subtitleLabel.Position = UDim2.new(0, 80, 0, 32)
-    subtitleLabel.Size = UDim2.new(0.4, 0, 0, 16)
+    subtitleLabel.Position = UDim2.new(0, 20, 0, 30)
+    subtitleLabel.Size = UDim2.new(0.6, 0, 0, 16)
     subtitleLabel.TextColor3 = Theme.TextSecondary
     subtitleLabel.Font = Enum.Font.Gotham
-
-    local dragController = makeDraggable(mainWindow, topBar)
-
-    -- Search box
-    local searchBox = Instance.new("TextBox")
-    searchBox.BackgroundColor3 = Theme.ElementBackground
-    searchBox.BorderSizePixel = 0
-    searchBox.Size = UDim2.new(0, isMobile and 180 or 220, 0, 32)
-    searchBox.Position = UDim2.new(0.55, 0, 0, 14)
-    searchBox.PlaceholderText = "Search tabs..."
-    searchBox.Text = ""
-    searchBox.TextColor3 = Theme.TextPrimary
-    searchBox.PlaceholderColor3 = Theme.TextDark
-    searchBox.Font = Enum.Font.Gotham
-    searchBox.TextSize = isMobile and 12 or 14
-    searchBox.TextXAlignment = Enum.TextXAlignment.Left
-    searchBox.ClearTextOnFocus = false
-    searchBox.Parent = topBar
-    createCorner(searchBox, 8)
-    local searchPadding = Instance.new("UIPadding")
-    searchPadding.PaddingLeft = UDim.new(0, 10)
-    searchPadding.Parent = searchBox
-
+    
     -- ═══════════════════════════════════════════════════════════════════════════
     -- MINIMIZE BUTTON
     -- ═══════════════════════════════════════════════════════════════════════════
@@ -964,6 +876,7 @@ function KapaoUI:CreateWindow(options)
     end)
     
     local isMinimized = false
+    local originalSize = mainWindow.Size
     
     -- Minimize button click
     minimizeButton.MouseButton1Click:Connect(function()
@@ -988,6 +901,17 @@ function KapaoUI:CreateWindow(options)
                 Position = UDim2.new(1, 0, 0.5, -22.5)
             }, 0.2, Enum.EasingStyle.Back, Enum.EasingDirection.In).Completed:Connect(function()
                 toggleButton.Visible = false
+                mainWindow.Visible = true
+                mainWindow.Size = UDim2.new(0, 0, 0, 0)
+                mainWindow.Position = UDim2.new(0.5, 0, 0.5, 0)
+                createTween(mainWindow, {
+                    Size = originalSize,
+                    Position = UDim2.new(0.5, -340, 0.5, -225)
+                }, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+            end)
+        end
+    end)
+    
     -- Toggle button click (reopen UI)
     toggleButton.MouseButton1Click:Connect(function()
         isMinimized = false
@@ -1000,7 +924,7 @@ function KapaoUI:CreateWindow(options)
             mainWindow.Position = UDim2.new(0.5, 0, 0.5, 0)
             createTween(mainWindow, {
                 Size = originalSize,
-                Position = UDim2.new(0.5, -currentWidth/2, 0.5, -currentHeight/2)
+                Position = UDim2.new(0.5, -340, 0.5, -225)
             }, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
         end)
     end)
@@ -1293,53 +1217,11 @@ function KapaoUI:CreateWindow(options)
     end)
     
     -- ═══════════════════════════════════════════════════════════════════════════
-    -- RESIZE HANDLE
+    -- MAKE WINDOW DRAGGABLE
     -- ═══════════════════════════════════════════════════════════════════════════
     
-    local resizeHandle = Instance.new("Frame")
-    resizeHandle.Size = UDim2.new(0, 24, 0, 24)
-    resizeHandle.Position = UDim2.new(1, -24, 1, -24)
-    resizeHandle.BackgroundColor3 = Theme.ElementBackground
-    resizeHandle.BorderSizePixel = 0
-    resizeHandle.Parent = mainWindow
-    resizeHandle.ZIndex = 20
-    createCorner(resizeHandle, 6)
-    createStroke(resizeHandle, Theme.ElementBorder, 1)
-
-    local resizerIcon = Instance.new("ImageLabel")
-    resizerIcon.BackgroundTransparency = 1
-    resizerIcon.Image = "rbxassetid://6034818375"
-    resizerIcon.ImageColor3 = Theme.TextDark
-    resizerIcon.Size = UDim2.new(0, 16, 0, 16)
-    resizerIcon.Position = UDim2.new(0.5, -8, 0.5, -8)
-    resizerIcon.Parent = resizeHandle
-
-    local resizing = false
-    local resizeStart
-    local startSize
-
-    resizeHandle.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            resizing = true
-            resizeStart = input.Position
-            startSize = Vector2.new(currentWidth, currentHeight)
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    resizing = false
-                end
-            end)
-        end
-    end)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if not resizing then return end
-        if input.UserInputType ~= Enum.UserInputType.MouseMovement and input.UserInputType ~= Enum.UserInputType.Touch then
-            return
-        end
-        local delta = input.Position - resizeStart
-        setWindowSize(startSize.X + delta.X, startSize.Y + delta.Y)
-    end)
-
+    makeDraggable(mainWindow, topBar)
+    
     -- ═══════════════════════════════════════════════════════════════════════════
     -- ENTRANCE ANIMATION
     -- ═══════════════════════════════════════════════════════════════════════════
@@ -1351,10 +1233,8 @@ function KapaoUI:CreateWindow(options)
     -- WINDOW OBJECT
     -- ═══════════════════════════════════════════════════════════════════════════
     
-    local tabsList = {}
-
     local window = {
-        _tabs = tabsList,
+        _tabs = {},
         _activeTab = nil,
         Config = config,
         Root = mainWindow,
@@ -1392,31 +1272,6 @@ function KapaoUI:CreateWindow(options)
     function window:Hide()
         mainWindow.Visible = false
     end
-
-    local function applySearchFilter()
-        local query = searchBox.Text:lower():gsub("^%s+", ""):gsub("%s+$", "")
-        local firstVisible
-        for _, tab in ipairs(tabsList) do
-            local matches = (query == "") or (tab.SearchName and tab.SearchName:find(query, 1, true))
-            tab.Button.Visible = matches
-            if matches and not firstVisible then
-                firstVisible = tab
-            end
-        end
-
-        if window._activeTab and window._activeTab.Button.Visible then
-            return
-        end
-
-        if firstVisible and firstVisible.Select then
-            firstVisible.Select()
-        elseif window._activeTab then
-            window._activeTab.Frame.Visible = false
-            window._activeTab = nil
-        end
-    end
-
-    searchBox:GetPropertyChangedSignal("Text"):Connect(applySearchFilter)
     
     --[[
         Create a new tab
@@ -1427,9 +1282,8 @@ function KapaoUI:CreateWindow(options)
         Returns:
             Tab object with methods to add components
     ]]
-    function window:AddTab(name, iconOrEmoji)
+    function window:AddTab(name)
         name = name or "Tab"
-        local iconAsset, emojiFallback = resolveIcon(iconOrEmoji)
         
         -- ═══════════════════════════════════════════════════════════════════════
         -- TAB BUTTON
@@ -1446,37 +1300,6 @@ function KapaoUI:CreateWindow(options)
         tabButton.AutoButtonColor = false
         tabButton.Parent = sidebarScroll
         createCorner(tabButton, 8)
-
-        local iconLabel
-        if iconAsset or emojiFallback then
-            iconLabel = Instance.new("ImageLabel")
-            iconLabel.BackgroundTransparency = 1
-            iconLabel.Size = UDim2.new(0, 18, 0, 18)
-            iconLabel.Position = UDim2.new(0, 6, 0.5, -9)
-            iconLabel.Parent = tabButton
-            iconLabel.Visible = iconAsset ~= nil
-            if iconAsset then
-                iconLabel.Image = iconAsset
-                iconLabel.ImageColor3 = Theme.TextSecondary
-            end
-
-            if emojiFallback and not iconAsset then
-                local textIcon = Instance.new("TextLabel")
-                textIcon.BackgroundTransparency = 1
-                textIcon.Size = iconLabel.Size
-                textIcon.Position = iconLabel.Position
-                textIcon.Text = emojiFallback
-                textIcon.TextColor3 = Theme.TextSecondary
-                textIcon.Font = Enum.Font.GothamBold
-                textIcon.TextSize = 14
-                textIcon.Parent = tabButton
-                iconLabel:Destroy()
-                iconLabel = nil
-            end
-
-            tabButton.TextXAlignment = Enum.TextXAlignment.Left
-            tabButton.Text = "   " .. name
-        end
         
         local tabButtonStroke = createStroke(tabButton, Theme.ElementBorder, 1)
         
@@ -1514,7 +1337,6 @@ function KapaoUI:CreateWindow(options)
         
         local tab = {
             Name = name,
-            SearchName = name:lower(),
             Button = tabButton,
             Frame = tabFrame,
             Stroke = tabButtonStroke,
@@ -1561,8 +1383,6 @@ function KapaoUI:CreateWindow(options)
         if not window._activeTab then
             selectTab()
         end
-        table.insert(tabsList, tab)
-        applySearchFilter()
         
         -- ═══════════════════════════════════════════════════════════════════════
         -- COMPONENT 1: SECTION
