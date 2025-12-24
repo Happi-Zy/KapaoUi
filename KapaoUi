@@ -111,6 +111,41 @@ local Theme = {
     Error = Color3.fromRGB(255, 60, 80),
 }
 
+local IconDictionary = {
+    user = "rbxassetid://6034509993",
+    settings = "rbxassetid://6034509990",
+    gem = "rbxassetid://6034413215",
+    shuffle = "rbxassetid://6035047391",
+    misc = "rbxassetid://6034394826",
+    sword = "rbxassetid://6034684943",
+    lightning = "rbxassetid://6034287516",
+}
+
+local function resolveIcon(icon)
+    if not icon then
+        return nil, nil
+    end
+
+    if typeof(icon) == "number" then
+        return "rbxassetid://" .. icon, nil
+    end
+
+    if type(icon) == "string" then
+        if icon:match("^rbxassetid://") or icon:match("^https?://") then
+            return icon, nil
+        end
+
+        local mapped = IconDictionary[icon:lower()]
+        if mapped then
+            return mapped, nil
+        end
+
+        return nil, icon
+    end
+
+    return nil, nil
+end
+
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- UTILITY FUNCTIONS
 -- ═══════════════════════════════════════════════════════════════════════════════
@@ -153,8 +188,13 @@ local function makeDraggable(frame, dragHandle)
     local dragging = false
     local dragStart = nil
     local startPos = nil
+    local draggingEnabled = true
     
     dragHandle.InputBegan:Connect(function(input)
+        if not draggingEnabled then
+            return
+        end
+
         if input.UserInputType == Enum.UserInputType.MouseButton1 or 
            input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
@@ -183,6 +223,15 @@ local function makeDraggable(frame, dragHandle)
             end
         end
     end)
+
+    return {
+        SetEnabled = function(_, enabled)
+            draggingEnabled = enabled and true or false
+        end,
+        IsEnabled = function()
+            return draggingEnabled
+        end
+    }
 end
 
 --[[
@@ -779,7 +828,7 @@ function KapaoUI:CreateWindow(options)
     
     local topBar = createFrame({
         BackgroundColor = Theme.TopBar,
-        Size = UDim2.new(1, 0, 0, 55),
+        Size = UDim2.new(1, 0, 0, 60),
         Parent = mainWindow,
     })
     createCorner(topBar, 12)
@@ -795,16 +844,69 @@ function KapaoUI:CreateWindow(options)
     
     -- Title label
     local titleLabel = createTextLabel(topBar, title, isMobile and 16 or 18)
-    titleLabel.Position = UDim2.new(0, 20, 0, 8)
-    titleLabel.Size = UDim2.new(0.6, 0, 0, 20)
+    titleLabel.Position = UDim2.new(0, 80, 0, 8)
+    titleLabel.Size = UDim2.new(0.4, 0, 0, 20)
     titleLabel.TextColor3 = Theme.Accent
     
     -- Subtitle label
     local subtitleLabel = createTextLabel(topBar, subtitle, isMobile and 11 or 12)
-    subtitleLabel.Position = UDim2.new(0, 20, 0, 30)
-    subtitleLabel.Size = UDim2.new(0.6, 0, 0, 16)
+    subtitleLabel.Position = UDim2.new(0, 80, 0, 32)
+    subtitleLabel.Size = UDim2.new(0.4, 0, 0, 16)
     subtitleLabel.TextColor3 = Theme.TextSecondary
     subtitleLabel.Font = Enum.Font.Gotham
+
+    local dragController = makeDraggable(mainWindow, topBar)
+
+    -- Search box
+    local searchBox = Instance.new("TextBox")
+    searchBox.BackgroundColor3 = Theme.ElementBackground
+    searchBox.BorderSizePixel = 0
+    searchBox.Size = UDim2.new(0, isMobile and 180 or 220, 0, 32)
+    searchBox.Position = UDim2.new(0.55, 0, 0, 14)
+    searchBox.PlaceholderText = "Search tabs..."
+    searchBox.Text = ""
+    searchBox.TextColor3 = Theme.TextPrimary
+    searchBox.PlaceholderColor3 = Theme.TextDark
+    searchBox.Font = Enum.Font.Gotham
+    searchBox.TextSize = isMobile and 12 or 14
+    searchBox.TextXAlignment = Enum.TextXAlignment.Left
+    searchBox.ClearTextOnFocus = false
+    searchBox.Parent = topBar
+    createCorner(searchBox, 8)
+    local searchPadding = Instance.new("UIPadding")
+    searchPadding.PaddingLeft = UDim.new(0, 10)
+    searchPadding.Parent = searchBox
+
+    -- Lock button
+    local lockButton = Instance.new("TextButton")
+    lockButton.BackgroundColor3 = Theme.ElementBackground
+    lockButton.BorderSizePixel = 0
+    lockButton.Size = UDim2.new(0, 70, 0, 32)
+    lockButton.Position = UDim2.new(0, 8, 0, 14)
+    lockButton.Text = "Lock"
+    lockButton.Font = Enum.Font.GothamBold
+    lockButton.TextSize = isMobile and 12 or 14
+    lockButton.TextColor3 = Theme.TextSecondary
+    lockButton.AutoButtonColor = false
+    lockButton.Parent = topBar
+    createCorner(lockButton, 8)
+
+    local lockStroke = createStroke(lockButton, Theme.ElementBorder, 1)
+
+    local isLocked = false
+    local function updateLockVisual()
+        lockButton.Text = isLocked and "Locked" or "Lock"
+        lockButton.BackgroundColor3 = isLocked and Theme.AccentDark or Theme.ElementBackground
+        lockButton.TextColor3 = isLocked and Color3.new(1,1,1) or Theme.TextSecondary
+        lockStroke.Color = isLocked and Theme.Accent or Theme.ElementBorder
+    end
+    updateLockVisual()
+
+    lockButton.MouseButton1Click:Connect(function()
+        isLocked = not isLocked
+        dragController:SetEnabled(not isLocked)
+        updateLockVisual()
+    end)
     
     -- ═══════════════════════════════════════════════════════════════════════════
     -- MINIMIZE BUTTON
@@ -2578,6 +2680,39 @@ function KapaoUI:CreateWindow(options)
                         if v then table.insert(result, k) end
                     end
                     return result
+                end,
+                SetOptions = function(newOptions, newSelection)
+                    if type(newOptions) ~= "table" or #newOptions == 0 then
+                        return
+                    end
+                    optionsList = newOptions
+                    rebuildOptions()
+
+                    local newSelected = {}
+                    local function applySelection(value)
+                        if type(value) == "string" then
+                            newSelected[value] = true
+                        end
+                    end
+
+                    if newSelection ~= nil then
+                        if type(newSelection) == "table" then
+                            for _, v in ipairs(newSelection) do
+                                applySelection(v)
+                            end
+                        else
+                            applySelection(newSelection)
+                        end
+                    else
+                        for _, option in ipairs(optionsList) do
+                            if selected[option] then
+                                newSelected[option] = true
+                            end
+                        end
+                    end
+
+                    selected = newSelected
+                    updateText()
                 end
             }
         end
